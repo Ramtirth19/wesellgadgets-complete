@@ -6,9 +6,13 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import dotenv from "dotenv";
+import {config} from "dotenv";
 import path from "path";
-dotenv.config();
+
+if (process.env.NODE_ENV !== 'production') {
+  config();
+}
+
 
 import { connectDB } from "./config/database";
 import { errorHandler } from "./middleware/errorHandler";
