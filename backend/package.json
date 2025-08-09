@@ -26,7 +26,7 @@
     "stripe": "^18.4.0"
   },
   "scripts": {
-    "start": "nodemon src/server.ts",
+    "start": "node src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ramtirth Mallick",
