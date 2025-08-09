@@ -79,7 +79,6 @@ categorySchema.virtual('productCount', {
 });
 
 // Indexes
-categorySchema.index({ slug: 1 });
 categorySchema.index({ parentCategory: 1 });
 categorySchema.index({ sortOrder: 1 });
 

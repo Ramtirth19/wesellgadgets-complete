@@ -176,7 +176,6 @@ productSchema.index({ category: 1, featured: -1 });
 productSchema.index({ price: 1 });
 productSchema.index({ rating: -1 });
 productSchema.index({ createdAt: -1 });
-productSchema.index({ sku: 1 });
 
 // Virtual for discount percentage
 productSchema.virtual('discountPercentage').get(function() {
