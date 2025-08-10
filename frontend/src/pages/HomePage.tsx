@@ -26,22 +26,22 @@ import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 
 const HomePage: React.FC = () => {
-  const { products, categories, loading, fetchProducts } = useProductStore();
+  const { products, categories, loading, fetchProducts, fetchCategories } = useProductStore();
 
   useEffect(() => {
-    // Fetch featured products for homepage
-    const fetchFeaturedProducts = async () => {
+    const initializeHomePage = async () => {
       try {
+        // Fetch categories first
+        await fetchCategories();
+        // Then fetch featured products
         await fetchProducts({ featured: true, limit: 8 });
       } catch (error) {
-        console.error('Failed to fetch featured products:', error);
+        console.error('Failed to fetch homepage data:', error);
       }
     };
 
-    if (products.length === 0) {
-      fetchFeaturedProducts();
-    }
-  }, [fetchProducts, products.length]);
+    initializeHomePage();
+  }, [fetchProducts, fetchCategories]);
 
   const featuredProducts = products.filter(product => product.featured).slice(0, 6);
   const categoryIcons = {

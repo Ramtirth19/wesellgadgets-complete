@@ -18,17 +18,35 @@ export const categoryService = {
     try {
       const response = await api.categories.getAll();
       // Handle different response formats
+      let categories = [];
+      
       if (response.categories) {
-        return response;
+        categories = response.categories;
       } else if (Array.isArray(response)) {
-        return { categories: response };
+        categories = response;
       } else if (response.data) {
-        return { categories: response.data };
+        categories = response.data;
+      } else if (response.length !== undefined) {
+        categories = response;
       }
-      return { categories: [] };
+      
+      // Add productCount to categories if missing
+      const categoriesWithCount = categories.map((cat: any) => ({
+        ...cat,
+        id: cat._id || cat.id,
+        productCount: cat.productCount || 0
+      }));
+      
+      return { 
+        success: true,
+        categories: categoriesWithCount 
+      };
     } catch (error) {
       console.error('Error fetching categories:', error);
-      return { categories: [] };
+      return { 
+        success: false,
+        categories: [] 
+      };
     }
   },
 

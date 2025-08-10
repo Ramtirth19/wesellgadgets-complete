@@ -12,9 +12,10 @@ const categoryController = {
       const limitNum = parseInt(limit);
       const skip = (pageNum - 1) * limitNum;
 
-      let query = {};
+      let query: any = { isActive: true };
       if (search) {
         query = {
+          ...query,
           $or: [
             { name: { $regex: search, $options: 'i' } },
             { description: { $regex: search, $options: 'i' } }
@@ -29,7 +30,8 @@ const categoryController = {
 
       const total = await Category.countDocuments(query);
 
-      res.json({
+      return res.json({
+        success: true,
         categories,
         pagination: {
           page: pageNum,
@@ -39,7 +41,12 @@ const categoryController = {
         }
       });
     } catch (error:any) {
-      res.status(500).json({ message: 'Server error', error: error.message });
+      console.error('Get categories error:', error);
+      return res.status(500).json({ 
+        success: false,
+        message: 'Server error', 
+        error: error.message 
+      });
     }
   },
 

@@ -6,83 +6,152 @@ import User from '../models/User';
 
 // Register user
 const register = async (req: Request, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { name, email, password } = req.body;
-
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array() 
+      });
+    }
+
+    const { name, email, password } = req.body;
+
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
+      return res.status(400).json({ 
+        success: false,
+        message: 'User already exists' 
+      });
     }
 
     user = new User({ name, email, password });
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
-
     await user.save();
 
-    const payload = { user: { id: user.id } };
+    const payload = { id: user.id, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '1h' });
 
-    return res.status(201).json({ token });
+    return res.status(201).json({ 
+      success: true,
+      message: 'User registered successfully',
+      data: {
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      }
+    });
   } catch (err) {
-    return res.status(500).send('Server error');
-    
+    console.error('Register error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 };
 
 // Login user
 const login = async (req: Request, res: Response) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { email, password } = req.body;
-
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array() 
+      });
+    }
+
+    const { email, password } = req.body;
+
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid credentials' 
+      });
     }
 
-    console.log(password, user); // Debugging line
-
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid credentials' 
+      });
     }
 
-    const payload = { user: { id: user.id } };
+    const payload = { id: user.id, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '1h' });
 
-    return res.json({ token });
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    return res.json({ 
+      success: true,
+      message: 'Login successful',
+      data: {
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      }
+    });
   } catch (err) {
     console.error(err);
-    return res.status(500).send('Server error');
+    return res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 };
 
 // Get current user
 const getMe = async (req: Request, res: Response) => {
   try {
-    // @ts-ignore
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
+    const user = await User.findById(req.user?.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      }
+    });
   } catch (err) {
-    res.status(500).send('Server error');
+    console.error('Get me error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 };
 
 // Logout user (for JWT, this is usually handled on client, but you can implement token blacklist if needed)
 const logout = async (_req: Request, res: Response) => {
   // For stateless JWT, just instruct client to delete token
-  res.json({ msg: 'Logged out successfully' });
+  res.json({ 
+    success: true,
+    message: 'Logged out successfully' 
+  });
 };
 
 export default { register, login, getMe, logout };

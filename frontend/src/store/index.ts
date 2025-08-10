@@ -107,6 +107,7 @@ interface ProductState {
   setSortBy: (sortBy: ProductState['sortBy']) => void;
   setSearchQuery: (query: string) => void;
   getFilteredProducts: () => Product[];
+  clearProducts: () => void;
 }
 
 interface AdminState {
@@ -410,6 +411,8 @@ export const useProductStore = create<ProductState>()(
 
       return filtered;
     },
+    
+    clearProducts: () => set({ products: [] }),
   }))
 );
 

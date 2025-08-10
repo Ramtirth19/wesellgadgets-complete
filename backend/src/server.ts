@@ -8,6 +8,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import {config} from "dotenv";
 import path from "path";
+import { seedDatabase } from "./config/seedData";
 
 if (process.env.NODE_ENV !== 'production') {
   config();
@@ -44,7 +45,16 @@ const httpServer = createServer(app);
 const io = new Server(httpServer);
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(async () => {
+  // Seed database if no data exists
+  const User = (await import('./models/User')).default;
+  const userCount = await User.countDocuments();
+  
+  if (userCount === 0) {
+    console.log('🌱 No users found, seeding database...');
+    await seedDatabase();
+  }
+});
 
 // Rate limiting
 const limiter = rateLimit({
