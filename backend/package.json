@@ -1,0 +1,41 @@
+{
+  "name": "wesellgadgets-complete",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://Ramtirth19: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@github.com/Ramtirth19/wesellgadgets-complete.git"
+  },
+  "author": "Ramtirth Mallick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ramtirth19/wesellgadgets-complete/issues"
+  },
+  "homepage": "https://github.com/Ramtirth19/wesellgadgets-complete#readme",
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.3",
+    "@types/morgan": "^1.9.10",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@types/node": "^24.2.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.17.0",
+    "morgan": "^1.10.1",
+    "socket.io": "^4.8.1"
+  }
+}
