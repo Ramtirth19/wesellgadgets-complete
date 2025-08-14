@@ -7,7 +7,7 @@ import {
   Truck, 
   RefreshCw, 
   Star,
-  Zap,
+  Box,
   Smartphone,
   Laptop,
   Headphones,
@@ -226,7 +226,7 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
             {categories.slice(0, 6).map((category, index) => {
-              const IconComponent = categoryIcons[category.name as keyof typeof categoryIcons] || Zap;
+              const IconComponent = categoryIcons[category.name as keyof typeof categoryIcons] || Box;
               
               return (
                 <motion.div
@@ -266,7 +266,7 @@ const HomePage: React.FC = () => {
             className="text-center mb-8 lg:mb-12"
           >
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-              Why Choose TechVault?
+              Why Choose MJOpenbox?
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               We're not just another electronics store. We're your trusted partner in finding premium tech at unbeatable prices.
@@ -368,7 +368,7 @@ const HomePage: React.FC = () => {
               Ready to Upgrade Your Tech?
             </h2>
             <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
-              Join thousands of satisfied customers who've found their perfect device at TechVault. 
+              Join thousands of satisfied customers who've found their perfect device at MJOpenbox. 
               Start browsing now and discover your next favorite gadget.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
@@ -125,7 +124,7 @@ const getMe = async (req: Request, res: Response) => {
       });
     }
     
-    res.json({
+    return res.json({
       success: true,
       data: {
         user: {
@@ -138,7 +137,7 @@ const getMe = async (req: Request, res: Response) => {
     });
   } catch (err) {
     console.error('Get me error:', err);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Server error'
     });
@@ -148,7 +147,7 @@ const getMe = async (req: Request, res: Response) => {
 // Logout user (for JWT, this is usually handled on client, but you can implement token blacklist if needed)
 const logout = async (_req: Request, res: Response) => {
   // For stateless JWT, just instruct client to delete token
-  res.json({ 
+  return res.json({ 
     success: true,
     message: 'Logged out successfully' 
   });

@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
 import Category from '../models/Category';
@@ -15,9 +14,9 @@ export const seedDatabase = async () => {
 
     // Create admin user
     const adminPassword = await bcrypt.hash('admin123', 12);
-    const admin = await User.create({
+    await User.create({
       name: 'Admin User',
-      email: 'admin@techvault.com',
+      email: 'admin@mjopenbox.com',
       password: adminPassword,
       role: 'admin',
       isEmailVerified: true
@@ -25,7 +24,7 @@ export const seedDatabase = async () => {
 
     // Create customer user
     const customerPassword = await bcrypt.hash('password123', 12);
-    const customer = await User.create({
+    await User.create({
       name: 'John Doe',
       email: 'user@example.com',
       password: customerPassword,

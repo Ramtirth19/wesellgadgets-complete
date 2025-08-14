@@ -39,17 +39,32 @@ export interface User {
 
 export interface Order {
   id: string;
+  orderNumber?: string;
   userId: string;
-  items: CartItem[];
+  user?: User;
+  items: Array<{
+    product: Product;
+    quantity: number;
+    price: number;
+    name: string;
+  }>;
   total: number;
+  totalPrice: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   shippingAddress: {
+    firstName: string;
+    lastName: string;
     name: string;
+    email: string;
+    phone: string;
     address: string;
     city: string;
+    state: string;
     zipCode: string;
     country: string;
   };
+  trackingNumber?: string;
+  estimatedDelivery?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -299,8 +314,19 @@ export const useProductStore = create<ProductState>()(
       try {
         const response = await productService.getProducts(filters);
         if (response.success && response.data) {
+          // Transform products to ensure proper format
+          const transformedProducts = response.data.products.map((product: any) => ({
+            ...product,
+            id: product._id || product.id,
+            specifications: product.specifications || {},
+            images: product.images || [],
+            inStock: product.inStock !== undefined ? product.inStock : product.stockCount > 0,
+            featured: product.featured || false,
+            createdAt: product.createdAt || new Date().toISOString()
+          }));
+          
           set({ 
-            products: response.data.products,
+            products: transformedProducts,
             loading: false 
           });
         } else {
@@ -322,7 +348,15 @@ export const useProductStore = create<ProductState>()(
       try {
         const response = await categoryService.getCategories();
         const categories = response.categories || response.data || [];
-        set({ categories });
+        
+        // Transform categories to ensure proper format
+        const transformedCategories = categories.map((category: any) => ({
+          ...category,
+          id: category._id || category.id,
+          productCount: category.productCount || 0
+        }));
+        
+        set({ categories: transformedCategories });
       } catch (error: any) {
         console.error('Failed to fetch categories:', error);
         set({ categories: [] });
@@ -333,7 +367,18 @@ export const useProductStore = create<ProductState>()(
       try {
         const response = await productService.getProductById(id);
         if (response.success && response.data) {
-          return response.data.product;
+          const product = {
+            ...response.data.product,
+            id: response.data.product._id || response.data.product.id,
+            specifications: response.data.product.specifications || {},
+            images: response.data.product.images || [],
+            inStock: response.data.product.inStock !== undefined 
+              ? response.data.product.inStock 
+              : response.data.product.stockCount > 0,
+            featured: response.data.product.featured || false,
+            createdAt: response.data.product.createdAt || new Date().toISOString()
+          };
+          return product;
         }
         return null;
       } catch (error) {
@@ -434,21 +479,33 @@ export const useAdminStore = create<AdminState>()(
         const response = await orderService.getAllOrdersAdmin();
         if (response.success && response.data) {
           const orders = response.data.orders || [];
-          const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+          
+          // Transform orders to ensure proper format
+          const transformedOrders = orders.map((order: any) => ({
+            ...order,
+            id: order._id || order.id,
+            total: order.totalPrice || order.total,
+            shippingAddress: {
+              ...order.shippingAddress,
+              name: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`
+            }
+          }));
+          
+          const totalRevenue = transformedOrders.reduce((sum, order) => sum + (order.totalPrice || order.total), 0);
           set({
-            orders,
+            orders: transformedOrders,
             loading: false,
             stats: {
               ...get().stats,
-              totalOrders: orders.length,
+              totalOrders: transformedOrders.length,
               totalRevenue,
             },
           });
         } else {
-          set({ loading: false });
+          set({ loading: false, orders: [] });
         }
       } catch (error) {
-        set({ loading: false });
+        set({ loading: false, orders: [] });
         console.error('Failed to fetch orders:', error);
       }
     },
@@ -478,6 +535,7 @@ export const useAdminStore = create<AdminState>()(
         }
       } catch (error) {
         console.error('Failed to add product:', error);
+        throw error;
       }
     },
     
@@ -491,6 +549,7 @@ export const useAdminStore = create<AdminState>()(
         }
       } catch (error) {
         console.error('Failed to update product:', error);
+        throw error;
       }
     },
     
@@ -504,6 +563,7 @@ export const useAdminStore = create<AdminState>()(
         }
       } catch (error) {
         console.error('Failed to delete product:', error);
+        throw error;
       }
     },
     
@@ -517,6 +577,7 @@ export const useAdminStore = create<AdminState>()(
         }
       } catch (error) {
         console.error('Failed to add category:', error);
+        throw error;
       }
     },
     
@@ -530,6 +591,7 @@ export const useAdminStore = create<AdminState>()(
         }
       } catch (error) {
         console.error('Failed to update category:', error);
+        throw error;
       }
     },
     
@@ -543,6 +605,7 @@ export const useAdminStore = create<AdminState>()(
         }
       } catch (error) {
         console.error('Failed to delete category:', error);
+        throw error;
       }
     },
   }))

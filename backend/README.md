@@ -1,4 +1,4 @@
-# TechVault Backend
+# MJOpenbox Backend
 
 ## Setup Instructions
 
@@ -37,7 +37,7 @@
 
 After seeding, you can login with:
 
-- **Admin**: admin@techvault.com / admin123
+- **Admin**: admin@mjopenbox.com / admin123
 - **Customer**: user@example.com / password123
 
 ## API Endpoints

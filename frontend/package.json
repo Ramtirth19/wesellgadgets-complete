@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
+  "type": "module",
   "main": "tailwind.config.js",
   "dependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",

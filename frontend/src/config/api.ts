@@ -158,6 +158,53 @@ export const api = {
     deleteUser: (id: string) =>
       api.request(`/users/users/${id}`, { method: 'DELETE' }),
   },
+
+  // Dashboard endpoints
+  dashboard: {
+    getStats: () => api.request('/dashboard/stats'),
+    
+    getAnalytics: (period?: number) =>
+      api.request(`/dashboard/analytics${period ? `?period=${period}` : ''}`),
+  },
+
+  // Upload endpoints
+  upload: {
+    single: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return api.request('/upload/single', {
+        method: 'POST',
+        headers: {},
+        body: formData,
+      });
+    },
+    
+    multiple: (files: File[]) => {
+      const formData = new FormData();
+      files.forEach(file => formData.append('files', file));
+      return api.request('/upload/multiple', {
+        method: 'POST',
+        headers: {},
+        body: formData,
+      });
+    },
+    
+    image: (file: File, options?: { width?: number; height?: number; quality?: number }) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const params = new URLSearchParams();
+      if (options?.width) params.append('width', options.width.toString());
+      if (options?.height) params.append('height', options.height.toString());
+      if (options?.quality) params.append('quality', options.quality.toString());
+      
+      return api.request(`/upload/image${params.toString() ? `?${params.toString()}` : ''}`, {
+        method: 'POST',
+        headers: {},
+        body: formData,
+      });
+    },
+  },
 };
 
 export default api;
