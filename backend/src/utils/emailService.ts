@@ -5,7 +5,7 @@ import { IOrder } from '../models/Order';
 const createTransporter = () => {
   if (process.env.NODE_ENV === 'production') {
     // Production email service (e.g., SendGrid, AWS SES)
-    return nodemailer.createTransport({
+    return nodemailer.createTransporter({
       service: 'SendGrid',
       auth: {
         user: process.env.SENDGRID_USERNAME,
@@ -14,7 +14,7 @@ const createTransporter = () => {
     });
   } else {
     // Development - use Ethereal Email for testing
-    return nodemailer.createTransport({
+    return nodemailer.createTransporter({
       host: 'smtp.ethereal.email',
       port: 587,
       auth: {
@@ -30,13 +30,13 @@ export const sendOrderConfirmationEmail = async (order: IOrder, email: string) =
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: process.env.FROM_EMAIL || 'noreply@techvault.com',
+      from: process.env.FROM_EMAIL || 'noreply@mjopenbox.com',
       to: email,
       subject: `Order Confirmation - ${order.orderNumber}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #0ea5e9, #d946ef); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">TechVault</h1>
+            <h1 style="color: white; margin: 0;">MJOpenbox</h1>
             <p style="color: white; margin: 5px 0;">Premium Refurbished Electronics</p>
           </div>
           
@@ -84,7 +84,7 @@ export const sendOrderConfirmationEmail = async (order: IOrder, email: string) =
           </div>
           
           <div style="background: #333; color: white; padding: 20px; text-align: center;">
-            <p style="margin: 0;">© 2024 TechVault. All rights reserved.</p>
+            <p style="margin: 0;">© 2024 MJOpenbox. All rights reserved.</p>
           </div>
         </div>
       `
@@ -106,18 +106,18 @@ export const sendPasswordResetEmail = async (email: string, resetToken: string) 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     const mailOptions = {
-      from: process.env.FROM_EMAIL || 'noreply@techvault.com',
+      from: process.env.FROM_EMAIL || 'noreply@mjopenbox.com',
       to: email,
-      subject: 'Password Reset Request - TechVault',
+      subject: 'Password Reset Request - MJOpenbox',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #0ea5e9, #d946ef); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">TechVault</h1>
+            <h1 style="color: white; margin: 0;">MJOpenbox</h1>
           </div>
           
           <div style="padding: 20px;">
             <h2>Password Reset Request</h2>
-            <p>You requested a password reset for your TechVault account.</p>
+            <p>You requested a password reset for your MJOpenbox account.</p>
             <p>Click the button below to reset your password:</p>
             
             <div style="text-align: center; margin: 30px 0;">

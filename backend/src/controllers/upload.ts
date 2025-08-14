@@ -9,7 +9,10 @@ const uploadController = {
   async uploadSingle(req: Request, res: Response) {
     try {
       if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+        return res.status(400).json({ 
+          success: false,
+          message: "No file uploaded" 
+        });
       }
 
       const file = new File({
@@ -25,31 +28,41 @@ const uploadController = {
       await file.save();
 
       return res.status(201).json({
+        success: true,
         message: "File uploaded successfully",
-        file: {
-          id: file._id,
-          filename: file.filename,
-          originalName: file.originalName,
-          mimetype: file.mimetype,
-          size: file.size,
-          url: `/uploads/${file.filename}`,
-        },
+        data: {
+          file: {
+            id: file._id,
+            filename: file.filename,
+            originalName: file.originalName,
+            mimetype: file.mimetype,
+            size: file.size,
+            url: `/uploads/${file.filename}`,
+          }
+        }
       });
     } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: "Server error", 
+        error: error.message 
+      });
     }
   },
 
   // Upload multiple files
   async uploadMultiple(req: Request, res: Response) {
     try {
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ message: "No files uploaded" });
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ 
+          success: false,
+          message: "No files uploaded" 
+        });
       }
 
       const uploadedFiles: any[] = [];
 
-      for (const file of (req.files as any)) {
+      for (const file of req.files) {
         const newFile = new File({
           filename: file.filename,
           originalName: file.originalname,
@@ -73,11 +86,18 @@ const uploadController = {
       }
 
       return res.status(201).json({
+        success: true,
         message: "Files uploaded successfully",
-        files: uploadedFiles,
+        data: {
+          files: uploadedFiles
+        }
       });
     } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: "Server error", 
+        error: error.message 
+      });
     }
   },
 
@@ -85,11 +105,17 @@ const uploadController = {
   async uploadImage(req: Request, res: Response) {
     try {
       if (!req.file) {
-        return res.status(400).json({ message: "No image uploaded" });
+        return res.status(400).json({ 
+          success: false,
+          message: "No image uploaded" 
+        });
       }
 
       if (!req.file.mimetype.startsWith("image/")) {
-        return res.status(400).json({ message: "File must be an image" });
+        return res.status(400).json({ 
+          success: false,
+          message: "File must be an image" 
+        });
       }
 
       const { width, height, quality } = req.query;
@@ -132,18 +158,25 @@ const uploadController = {
       await file.save();
 
       return res.status(201).json({
+        success: true,
         message: "Image uploaded successfully",
-        file: {
-          id: file._id,
-          filename: file.filename,
-          originalName: file.originalName,
-          mimetype: file.mimetype,
-          size: file.size,
-          url: `/uploads/${file.filename}`,
-        },
+        data: {
+          file: {
+            id: file._id,
+            filename: file.filename,
+            originalName: file.originalName,
+            mimetype: file.mimetype,
+            size: file.size,
+            url: `/uploads/${file.filename}`,
+          }
+        }
       });
     } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: "Server error", 
+        error: error.message 
+      });
     }
   },
 
@@ -151,11 +184,17 @@ const uploadController = {
   async uploadAvatar(req: Request, res: Response) {
     try {
       if (!req.file) {
-        return res.status(400).json({ message: "No avatar uploaded" });
+        return res.status(400).json({ 
+          success: false,
+          message: "No avatar uploaded" 
+        });
       }
 
       if (!req.file.mimetype.startsWith("image/")) {
-        return res.status(400).json({ message: "Avatar must be an image" });
+        return res.status(400).json({ 
+          success: false,
+          message: "Avatar must be an image" 
+        });
       }
 
       const avatarFilename = `avatar_${req.user?.userId}_${Date.now()}.jpg`;
@@ -178,18 +217,25 @@ const uploadController = {
       await file.save();
 
       return res.status(201).json({
+        success: true,
         message: "Avatar uploaded successfully",
-        file: {
-          id: file._id,
-          filename: file.filename,
-          originalName: file.originalName,
-          mimetype: file.mimetype,
-          size: file.size,
-          url: `/uploads/${file.filename}`,
-        },
+        data: {
+          file: {
+            id: file._id,
+            filename: file.filename,
+            originalName: file.originalName,
+            mimetype: file.mimetype,
+            size: file.size,
+            url: `/uploads/${file.filename}`,
+          }
+        }
       });
     } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: "Server error", 
+        error: error.message 
+      });
     }
   },
 
@@ -197,7 +243,10 @@ const uploadController = {
   async uploadDocument(req: Request, res: Response) {
     try {
       if (!req.file) {
-        return res.status(400).json({ message: "No document uploaded" });
+        return res.status(400).json({ 
+          success: false,
+          message: "No document uploaded" 
+        });
       }
 
       const allowedTypes = [
@@ -210,7 +259,10 @@ const uploadController = {
       ];
 
       if (!allowedTypes.includes(req.file.mimetype)) {
-        return res.status(400).json({ message: "Document type not allowed" });
+        return res.status(400).json({ 
+          success: false,
+          message: "Document type not allowed" 
+        });
       }
 
       const file = new File({
@@ -226,18 +278,25 @@ const uploadController = {
       await file.save();
 
       return res.status(201).json({
+        success: true,
         message: "Document uploaded successfully",
-        file: {
-          id: file._id,
-          filename: file.filename,
-          originalName: file.originalName,
-          mimetype: file.mimetype,
-          size: file.size,
-          url: `/uploads/${file.filename}`,
-        },
+        data: {
+          file: {
+            id: file._id,
+            filename: file.filename,
+            originalName: file.originalName,
+            mimetype: file.mimetype,
+            size: file.size,
+            url: `/uploads/${file.filename}`,
+          }
+        }
       });
     } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: "Server error", 
+        error: error.message 
+      });
     }
   },
 
@@ -275,16 +334,23 @@ const uploadController = {
       }));
 
       res.json({
-        files: filesWithUrls,
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total,
-          pages: Math.ceil(total / limitNum),
-        },
+        success: true,
+        data: {
+          files: filesWithUrls,
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total,
+            pages: Math.ceil(total / limitNum),
+          }
+        }
       });
     } catch (error: any) {
-      res.status(500).json({ message: "Server error", error: error.message });
+      res.status(500).json({ 
+        success: false,
+        message: "Server error", 
+        error: error.message 
+      });
     }
   },
 
@@ -297,21 +363,33 @@ const uploadController = {
       });
 
       if (!file) {
-        return res.status(404).json({ message: "File not found" });
+        return res.status(404).json({ 
+          success: false,
+          message: "File not found" 
+        });
       }
 
       return res.json({
-        id: file._id,
-        filename: file.filename,
-        originalName: file.originalName,
-        mimetype: file.mimetype,
-        size: file.size,
-        category: file.category,
-        url: `/uploads/${file.filename}`,
-        createdAt: file.createdAt,
+        success: true,
+        data: {
+          file: {
+            id: file._id,
+            filename: file.filename,
+            originalName: file.originalName,
+            mimetype: file.mimetype,
+            size: file.size,
+            category: file.category,
+            url: `/uploads/${file.filename}`,
+            createdAt: file.createdAt,
+          }
+        }
       });
     } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: "Server error", 
+        error: error.message 
+      });
     }
   },
 
@@ -324,13 +402,16 @@ const uploadController = {
       });
 
       if (!file) {
-        return res.status(404).json({ message: "File not found" });
+        return res.status(404).json({ 
+          success: false,
+          message: "File not found" 
+        });
       }
 
       try {
         fs.unlinkSync(file.path);
       } catch (err) {
-        return console.error(
+        console.error(
           `Failed to delete physical file or it was already removed: ${file.path}`,
           err
         );
@@ -338,9 +419,16 @@ const uploadController = {
 
       await File.findByIdAndDelete(req.params.id);
 
-      return res.status(200).json({ message: "File deleted successfully" });
+      return res.status(200).json({ 
+        success: true,
+        message: "File deleted successfully" 
+      });
     } catch (error: any) {
-      return res.status(500).json({ message: "Server error", error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: "Server error", 
+        error: error.message 
+      });
     }
   },
 };

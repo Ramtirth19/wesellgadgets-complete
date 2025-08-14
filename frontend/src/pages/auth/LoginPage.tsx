@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Zap } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Box } from 'lucide-react';
 import { useAuthStore } from '../../store';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -48,10 +48,10 @@ const LoginPage: React.FC = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
+                <Box className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
-                TechVault
+                MJOpenbox
               </span>
             </div>
             <h2 className="text-2xl font-bold text-gray-900">
@@ -66,7 +66,7 @@ const LoginPage: React.FC = () => {
           <div className="mb-6 p-4 bg-primary-50 rounded-lg border border-primary-200">
             <h3 className="text-sm font-medium text-primary-800 mb-2">Demo Credentials:</h3>
             <div className="text-sm text-primary-700 space-y-1">
-              <div><strong>Admin:</strong> admin@techvault.com / admin123</div>
+              <div><strong>Admin:</strong> admin@mjopenbox.com / admin123</div>
               <div><strong>Customer:</strong> user@example.com / password123</div>
             </div>
           </div>

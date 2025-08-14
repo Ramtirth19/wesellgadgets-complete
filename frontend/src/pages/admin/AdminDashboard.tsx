@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -8,40 +8,73 @@ import {
   ShoppingCart,
   Star,
   AlertCircle,
-  Calendar
+  Calendar,
+  Eye,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 import { useAdminStore, useProductStore } from '../../store';
-import { formatPrice } from '../../utils/format';
+import dashboardService from '../../services/dashboardService';
+import { formatPrice, formatDate } from '../../utils/format';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
+import Button from '../../components/ui/Button';
 
 const AdminDashboard: React.FC = () => {
-  const { orders, stats, fetchOrders } = useAdminStore();
+  const { orders, fetchOrders } = useAdminStore();
   const { products, fetchProducts } = useProductStore();
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch real data from API
-    const loadData = async () => {
+    const loadDashboardData = async () => {
+      setLoading(true);
       try {
-        await Promise.all([
+        const [dashboardResponse] = await Promise.all([
+          dashboardService.getDashboardStats(),
           fetchOrders(),
           fetchProducts()
         ]);
+
+        if (dashboardResponse.success && dashboardResponse.data) {
+          setDashboardData(dashboardResponse.data);
+        }
       } catch (error) {
         console.error('Failed to load dashboard data:', error);
+      } finally {
+        setLoading(false);
       }
     };
     
-    loadData();
+    loadDashboardData();
   }, [fetchOrders, fetchProducts]);
 
-  const recentOrders = orders.slice(0, 5);
-  const lowStockProducts = products.filter(p => p.stockCount < 5);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const recentOrders = dashboardData?.recentOrders || orders.slice(0, 5);
+  const lowStockProducts = dashboardData?.lowStockProducts || products.filter(p => p.stockCount < 5).slice(0, 5);
+  const overview = dashboardData?.overview || {
+    totalUsers: 0,
+    totalProducts: products.length,
+    totalOrders: orders.length,
+    totalCategories: 0,
+    monthlyRevenue: 0,
+    monthlyOrders: 0
+  };
 
   const statCards = [
     {
       title: 'Total Revenue',
-      value: formatPrice(stats.totalRevenue),
+      value: formatPrice(overview.monthlyRevenue),
       change: '+12.5%',
       changeType: 'positive' as const,
       icon: DollarSign,
@@ -50,7 +83,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: 'Total Orders',
-      value: stats.totalOrders.toString(),
+      value: overview.totalOrders.toString(),
       change: '+8.2%',
       changeType: 'positive' as const,
       icon: ShoppingCart,
@@ -59,7 +92,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: 'Total Products',
-      value: products.length.toString(),
+      value: overview.totalProducts.toString(),
       change: '+3.1%',
       changeType: 'positive' as const,
       icon: Package,
@@ -68,7 +101,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: 'Active Users',
-      value: '1,234',
+      value: overview.totalUsers.toString(),
       change: '+15.3%',
       changeType: 'positive' as const,
       icon: Users,
@@ -121,8 +154,14 @@ const AdminDashboard: React.FC = () => {
                     {stat.value}
                   </p>
                   <div className="flex items-center mt-2">
-                    <TrendingUp className="w-4 h-4 text-success-500 mr-1" />
-                    <span className="text-sm text-success-600 font-medium">
+                    {stat.changeType === 'positive' ? (
+                      <ArrowUpRight className="w-4 h-4 text-success-500 mr-1" />
+                    ) : (
+                      <ArrowDownRight className="w-4 h-4 text-danger-500 mr-1" />
+                    )}
+                    <span className={`text-sm font-medium ${
+                      stat.changeType === 'positive' ? 'text-success-600' : 'text-danger-600'
+                    }`}>
                       {stat.change}
                     </span>
                     <span className="text-sm text-gray-500 ml-1">
@@ -146,39 +185,55 @@ const AdminDashboard: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900">
               Recent Orders
             </h2>
-            <Badge variant="info">{orders.length} total</Badge>
+            <Badge variant="info">{overview.totalOrders} total</Badge>
           </div>
           
           <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div
-                key={order.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-                    <ShoppingCart className="w-5 h-5 text-primary-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Order #{order.id}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {order.shippingAddress.name}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-gray-900">
-                    {formatPrice(order.total)}
-                  </p>
-                  <Badge variant={getStatusColor(order.status) as any} size="sm">
-                    {order.status}
-                  </Badge>
-                </div>
+            {recentOrders.length === 0 ? (
+              <div className="text-center py-8">
+                <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No recent orders</p>
               </div>
-            ))}
+            ) : (
+              recentOrders.map((order) => (
+                <div
+                  key={order.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                      <ShoppingCart className="w-5 h-5 text-primary-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        Order #{order.orderNumber || order.id}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {order.user?.name || 'Customer'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-gray-900">
+                      {formatPrice(order.totalPrice)}
+                    </p>
+                    <Badge variant={getStatusColor(order.status) as any} size="sm">
+                      {order.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
+          
+          {recentOrders.length > 0 && (
+            <div className="mt-4 text-center">
+              <Button variant="outline" size="sm">
+                <Eye className="w-4 h-4 mr-2" />
+                View All Orders
+              </Button>
+            </div>
+          )}
         </Card>
 
         {/* Low Stock Alert */}
@@ -197,7 +252,7 @@ const AdminDashboard: React.FC = () => {
                 <p className="text-gray-500">All products are well stocked!</p>
               </div>
             ) : (
-              lowStockProducts.slice(0, 5).map((product) => (
+              lowStockProducts.map((product) => (
                 <div
                   key={product.id}
                   className="flex items-center justify-between p-4 bg-warning-50 rounded-lg border border-warning-200"
@@ -237,16 +292,16 @@ const AdminDashboard: React.FC = () => {
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Add Product', icon: Package, href: '/admin/products/new' },
+            { label: 'Add Product', icon: Package, href: '/admin/products' },
             { label: 'View Orders', icon: ShoppingCart, href: '/admin/orders' },
             { label: 'Manage Users', icon: Users, href: '/admin/users' },
-            { label: 'View Reports', icon: TrendingUp, href: '/admin/reports' },
+            { label: 'View Reports', icon: TrendingUp, href: '/admin/analytics' },
           ].map((action) => (
             <button
               key={action.label}
-              className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
             >
-              <action.icon className="w-8 h-8 text-primary-600 mb-2" />
+              <action.icon className="w-8 h-8 text-primary-600 mb-2 group-hover:scale-110 transition-transform" />
               <span className="text-sm font-medium text-gray-900">
                 {action.label}
               </span>

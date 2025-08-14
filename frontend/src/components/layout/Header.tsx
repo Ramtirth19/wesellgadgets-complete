@@ -7,7 +7,7 @@ import {
   User, 
   Menu, 
   X, 
-  Zap,
+  Box,
   LogOut,
   Settings,
   Package,
@@ -53,10 +53,10 @@ const Header: React.FC = () => {
               transition={{ duration: 0.3 }}
               className="w-8 h-8 bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg flex items-center justify-center"
             >
-              <Zap className="w-5 h-5 text-white" />
+              <Box className="w-5 h-5 text-white" />
             </motion.div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
-              TechVault
+              MJOpenbox
             </span>
           </Link>
 

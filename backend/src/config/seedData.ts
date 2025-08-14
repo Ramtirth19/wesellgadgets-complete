@@ -17,7 +17,7 @@ export const seedDatabase = async () => {
     const adminPassword = await bcrypt.hash('admin123', 12);
     const admin = await User.create({
       name: 'Admin User',
-      email: 'admin@techvault.com',
+      email: 'admin@mjopenbox.com',
       password: adminPassword,
       role: 'admin',
       isEmailVerified: true

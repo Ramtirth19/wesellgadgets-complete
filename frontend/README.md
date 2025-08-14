@@ -1,4 +1,4 @@
-# TechVault Frontend
+# MJOpenbox Frontend
 
 ## Setup Instructions
 
@@ -27,7 +27,7 @@
 
 ## Default Login Credentials
 
-- **Admin**: admin@techvault.com / admin123
+- **Admin**: admin@mjopenbox.com / admin123
 - **Customer**: user@example.com / password123
 
 ## Features
@@ -62,6 +62,5 @@ src/
 ├── pages/         # Page components
 ├── services/      # API services
 ├── store/         # State management
-├── utils/         # Utility functions
-└── types/         # TypeScript types
+└── utils/         # Utility functions
 ```

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, Zap } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Box } from 'lucide-react';
 import { useAuthStore } from '../../store';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -63,10 +63,10 @@ const RegisterPage: React.FC = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
+                <Box className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
-                TechVault
+                MJOpenbox
               </span>
             </div>
             <h2 className="text-2xl font-bold text-gray-900">

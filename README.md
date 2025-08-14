@@ -1,4 +1,4 @@
-# TechVault - Premium Refurbished Electronics Marketplace
+# MJOpenbox - Premium Refurbished Electronics Marketplace
 
 A full-stack MERN application for buying and selling refurbished electronics with a modern, responsive design.
 
@@ -14,7 +14,7 @@ A full-stack MERN application for buying and selling refurbished electronics wit
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd techvault
+   cd mjopenbox
    ```
 
 2. **Backend Setup**
@@ -41,7 +41,7 @@ A full-stack MERN application for buying and selling refurbished electronics wit
 
 ## 🔐 Default Login Credentials
 
-- **Admin**: admin@techvault.com / admin123
+- **Admin**: admin@mjopenbox.com / admin123
 - **Customer**: user@example.com / password123
 
 ## 🛠 Tech Stack
@@ -86,7 +86,7 @@ A full-stack MERN application for buying and selling refurbished electronics wit
 ## 🏗 Project Structure
 
 ```
-techvault/
+mjopenbox/
 ├── backend/
 │   ├── src/
 │   │   ├── controllers/    # Route handlers
@@ -111,7 +111,7 @@ techvault/
 
 ### Backend Environment Variables
 ```env
-MONGO_URI=mongodb://localhost:27017/techvault
+MONGO_URI=mongodb://localhost:27017/mjopenbox
 JWT_SECRET=your-secret-key
 PORT=5000
 NODE_ENV=development
@@ -121,7 +121,7 @@ FRONTEND_URL=http://localhost:3000
 ### Frontend Environment Variables
 ```env
 VITE_API_URL=http://localhost:5000/api
-VITE_APP_NAME=TechVault
+VITE_APP_NAME=MJOpenbox
 ```
 
 ## 🚀 Deployment

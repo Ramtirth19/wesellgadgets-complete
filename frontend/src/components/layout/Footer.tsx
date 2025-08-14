@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Zap, 
+  Box, 
   Facebook, 
   Twitter, 
   Instagram, 
@@ -20,9 +20,9 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
+                <Box className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold">TechVault</span>
+              <span className="text-xl font-bold">MJOpenbox</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               Your trusted marketplace for premium refurbished electronics. 
@@ -109,11 +109,11 @@ const Footer: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-primary-400" />
-                <span className="text-gray-400 text-sm">support@techvault.com</span>
+                <span className="text-gray-400 text-sm">support@mjopenbox.com</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-4 h-4 text-primary-400" />
-                <span className="text-gray-400 text-sm">1-800-TECH-VAULT</span>
+                <span className="text-gray-400 text-sm">1-800-MJ-OPENBOX</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="w-4 h-4 text-primary-400" />
@@ -126,7 +126,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 TechVault. All rights reserved.
+              © 2024 MJOpenbox. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
