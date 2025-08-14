@@ -31,23 +31,52 @@ export interface ProductResponse {
 
 export const productService = {
   async getProducts(filters: ProductFilters = {}): Promise<ProductResponse> {
-    const params = new URLSearchParams();
+    try {
+      const params = new URLSearchParams();
     
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        if (Array.isArray(value)) {
-          value.forEach(v => params.append(key, v.toString()));
-        } else {
-          params.append(key, value.toString());
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          if (Array.isArray(value)) {
+            value.forEach(v => params.append(key, v.toString()));
+          } else {
+            params.append(key, value.toString());
+          }
         }
-      }
-    });
+      });
 
-    return api.products.getAll(params);
+      const response = await api.products.getAll(params);
+      return {
+        success: true,
+        data: {
+          products: response.data?.products || response.products || [],
+          pagination: response.data?.pagination || response.pagination
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      return {
+        success: false,
+        data: {
+          products: [],
+          pagination: undefined
+        }
+      };
+    }
   },
 
   async getProductById(id: string): Promise<{ success: boolean; data: { product: Product } }> {
-    return api.products.getById(id);
+    try {
+      const response = await api.products.getById(id);
+      return {
+        success: true,
+        data: {
+          product: response.data?.product || response.product || response
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      throw error;
+    }
   },
 
   async createProduct(productData: Omit<Product, 'id' | 'createdAt'>): Promise<{ success: boolean; data: { product: Product } }> {

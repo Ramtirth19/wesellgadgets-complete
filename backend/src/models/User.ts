@@ -111,13 +111,13 @@ userSchema.methods.comparePassword = async function(candidatePassword: string): 
 };
 
 // Remove password from JSON output
-userSchema.methods.toJSON = function() {
-  const userObject = this.toObject();
-  delete userObject.password;
-  delete userObject.passwordResetToken;
-  delete userObject.passwordResetExpires;
-  delete userObject.emailVerificationToken;
-  return userObject;
-};
+// userSchema.methods.toJSON = function() {
+//   const userObject = this.toObject();
+//   delete userObject.password;
+//   delete userObject.passwordResetToken;
+//   delete userObject.passwordResetExpires;
+//   delete userObject.emailVerificationToken;
+//   return userObject;
+// };
 
 export default mongoose.model<IUser>('User', userSchema);

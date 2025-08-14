@@ -90,7 +90,17 @@ const productController = {
       console.error('Get products error:', error);
       return res.status(500).json({
         success: false,
-        message: 'Server error while fetching products'
+        message: 'Server error while fetching products',
+        data: {
+          products: [],
+          pagination: {
+            currentPage: 1,
+            totalPages: 0,
+            totalProducts: 0,
+            hasNextPage: false,
+            hasPrevPage: false
+          }
+        }
       });
     }
   },

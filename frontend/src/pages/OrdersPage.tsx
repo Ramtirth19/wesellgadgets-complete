@@ -38,56 +38,8 @@ const OrdersPage: React.FC = () => {
         }
       } catch (error) {
         console.error('Failed to fetch orders:', error);
-        // Fallback to mock data for demo
-        setOrders([
-          {
-            id: 'TV1234567890',
-            createdAt: '2024-01-25T10:30:00Z',
-            status: 'delivered',
-            total: 1297,
-            items: [
-              {
-                product: {
-                  id: '1',
-                  name: 'iPhone 14 Pro Max',
-                  images: ['https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400'],
-                  price: 899
-                },
-                quantity: 1
-              },
-              {
-                product: {
-                  id: '2',
-                  name: 'AirPods Pro 2nd Gen',
-                  images: ['https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400'],
-                  price: 199
-                },
-                quantity: 2
-              }
-            ],
-            trackingNumber: 'TRK123456789',
-            estimatedDelivery: '2024-01-30T00:00:00Z'
-          },
-          {
-            id: 'TV1234567891',
-            createdAt: '2024-01-20T14:15:00Z',
-            status: 'shipped',
-            total: 1899,
-            items: [
-              {
-                product: {
-                  id: '3',
-                  name: 'MacBook Pro 16" M2',
-                  images: ['https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400'],
-                  price: 1899
-                },
-                quantity: 1
-              }
-            ],
-            trackingNumber: 'TRK123456790',
-            estimatedDelivery: '2024-01-28T00:00:00Z'
-          }
-        ]);
+        // Show empty state on error
+        setOrders([]);
       } finally {
         setLoading(false);
       }
