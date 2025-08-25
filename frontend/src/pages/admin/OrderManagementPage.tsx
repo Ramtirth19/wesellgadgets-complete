@@ -29,7 +29,15 @@ const OrderManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchOrders();
+    const loadOrders = async () => {
+      try {
+        await fetchOrders();
+      } catch (error) {
+        console.error('Failed to load orders:', error);
+      }
+    };
+    
+    loadOrders();
   }, [fetchOrders]);
 
   const filteredOrders = orders.filter(order => {

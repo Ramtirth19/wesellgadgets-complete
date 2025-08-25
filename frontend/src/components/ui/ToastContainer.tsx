@@ -12,7 +12,7 @@ const ToastContainer: React.FC = () => {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   useEffect(() => {
-    const handleCartUpdate = (event: any) => {
+    const handleCartUpdate = (event: CustomEvent) => {
       const toast: ToastData = {
         id: Date.now().toString(),
         message: event.detail.message,
@@ -21,7 +21,7 @@ const ToastContainer: React.FC = () => {
       setToasts(prev => [...prev, toast]);
     };
 
-    const handleError = (event: any) => {
+    const handleError = (event: CustomEvent) => {
       const toast: ToastData = {
         id: Date.now().toString(),
         message: event.detail.message,
@@ -30,12 +30,12 @@ const ToastContainer: React.FC = () => {
       setToasts(prev => [...prev, toast]);
     };
 
-    window.addEventListener('cart-updated', handleCartUpdate);
-    window.addEventListener('app-error', handleError);
+    window.addEventListener('cart-updated', handleCartUpdate as EventListener);
+    window.addEventListener('app-error', handleError as EventListener);
 
     return () => {
-      window.removeEventListener('cart-updated', handleCartUpdate);
-      window.removeEventListener('app-error', handleError);
+      window.removeEventListener('cart-updated', handleCartUpdate as EventListener);
+      window.removeEventListener('app-error', handleError as EventListener);
     };
   }, []);
 

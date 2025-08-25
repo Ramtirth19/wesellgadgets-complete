@@ -36,7 +36,15 @@ const CategoryManagementPage: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchCategories();
+    const loadCategories = async () => {
+      try {
+        await fetchCategories();
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    };
+    
+    loadCategories();
   }, [fetchCategories]);
 
   const filteredCategories = categories.filter(category =>

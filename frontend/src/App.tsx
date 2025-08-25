@@ -23,6 +23,7 @@ import ProfilePage from './pages/ProfilePage';
 import OrderTrackingPage from './pages/OrderTrackingPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -32,31 +33,14 @@ import CategoryManagementPage from './pages/admin/CategoryManagementPage';
 import OrderManagementPage from './pages/admin/OrderManagementPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import SettingsPage from './pages/admin/SettingsPage';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
 const App: React.FC = () => {
   const { checkAuth } = useAuthStore();
-  const { fetchProducts, fetchCategories } = useProductStore();
 
   useEffect(() => {
-    // Initialize app data
-    const initializeApp = async () => {
-      try {
-        // Check authentication status
-        await checkAuth();
-        
-        // Fetch initial data
-        await Promise.all([
-          fetchProducts(),
-          fetchCategories()
-        ]);
-      } catch (error) {
-        console.error('Failed to initialize app:', error);
-      }
-    };
-
-    initializeApp();
-  }, [checkAuth, fetchProducts, fetchCategories]);
+    // Check authentication status on app load
+    checkAuth();
+  }, [checkAuth]);
 
   return (
     <Router>

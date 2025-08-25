@@ -30,7 +30,7 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
           <div className="flex min-h-screen items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
@@ -43,6 +43,7 @@ const Modal: React.FC<ModalProps> = ({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
               className={cn(
                 'relative w-full rounded-2xl bg-white shadow-2xl',
                 sizes[size],

@@ -24,10 +24,10 @@ const SettingsPage: React.FC = () => {
   
   const [settings, setSettings] = useState({
     // General Settings
-    storeName: 'TechVault',
+    storeName: 'MJOpenbox',
     storeDescription: 'Premium refurbished electronics with unbeatable prices',
-    storeEmail: 'support@techvault.com',
-    storePhone: '1-800-TECH-VAULT',
+    storeEmail: 'support@mjopenbox.com',
+    storePhone: '1-800-MJ-OPENBOX',
     storeAddress: '123 Tech Street, San Francisco, CA 94105',
     
     // Email Settings

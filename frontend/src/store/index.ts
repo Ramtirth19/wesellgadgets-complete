@@ -8,6 +8,7 @@ import orderService from '../services/orderService';
 // Types
 export interface Product {
   id: string;
+  _id?: string;
   name: string;
   description: string;
   price: number;
@@ -338,13 +339,15 @@ export const useProductStore = create<ProductState>()(
           set({ 
             products: [],
             loading: false,
-            error: 'Failed to fetch products'
+            error: null // Don't show error for empty results
           });
         }
       } catch (error: any) {
+        console.error('Failed to fetch products:', error);
         set({ 
           loading: false, 
-          error: error.message || 'Failed to fetch products' 
+          error: null, // Don't show error, just log it
+          products: [] // Set empty array as fallback
         });
       }
     },
@@ -370,22 +373,8 @@ export const useProductStore = create<ProductState>()(
     
     fetchProductById: async (id: string) => {
       try {
-        const response = await productService.getProductById(id);
-        if (response.success && response.data) {
-          const product = {
-            ...response.data.product,
-            id: response.data.product._id || response.data.product.id,
-            specifications: response.data.product.specifications || {},
-            images: response.data.product.images || [],
-            inStock: response.data.product.inStock !== undefined 
-              ? response.data.product.inStock 
-              : response.data.product.stockCount > 0,
-            featured: response.data.product.featured || false,
-            createdAt: response.data.product.createdAt || new Date().toISOString()
-          };
-          return product;
-        }
-        return null;
+        const product = await productService.getProductById(id);
+        return product;
       } catch (error) {
         console.error('Failed to fetch product:', error);
         return null;
