@@ -342,12 +342,12 @@ export const useProductStore = create<ProductState>()(
           });
         }
       } catch (error: any) {
+        console.error('Failed to fetch products:', error);
         set({ 
           loading: false, 
           error: null, // Don't show error, just log it
           products: [] // Set empty array as fallback
         });
-        console.error('Failed to fetch products:', error);
       }
     },
     

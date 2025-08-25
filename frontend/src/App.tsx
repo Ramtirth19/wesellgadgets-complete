@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAuthStore, useProductStore } from './store';
 import ScrollToTop from './components/ui/ScrollToTop';
@@ -24,6 +23,7 @@ import ProfilePage from './pages/ProfilePage';
 import OrderTrackingPage from './pages/OrderTrackingPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -33,45 +33,14 @@ import CategoryManagementPage from './pages/admin/CategoryManagementPage';
 import OrderManagementPage from './pages/admin/OrderManagementPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import SettingsPage from './pages/admin/SettingsPage';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
 const App: React.FC = () => {
   const { checkAuth } = useAuthStore();
-  const { fetchProducts, fetchCategories } = useProductStore();
-  const [appLoading, setAppLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize app data
-    const initializeApp = async () => {
-      try {
-        // Check authentication status
-        await checkAuth();
-        
-        // Fetch initial data
-        await Promise.all([
-          fetchProducts(),
-          fetchCategories()
-        ]);
-      } catch (error) {
-        console.error('Failed to initialize app:', error);
-      } finally {
-        setAppLoading(false);
-      }
-    };
-
-    initializeApp();
-  }, [checkAuth, fetchProducts, fetchCategories]);
-
-  if (appLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading MJOpenbox...</p>
-        </div>
-      </div>
-    );
-  }
+    // Check authentication status on app load
+    checkAuth();
+  }, [checkAuth]);
 
   return (
     <Router>

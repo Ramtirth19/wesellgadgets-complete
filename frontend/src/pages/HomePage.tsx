@@ -27,26 +27,15 @@ import Badge from '../components/ui/Badge';
 
 const HomePage: React.FC = () => {
   const { products, categories, loading, fetchProducts, fetchCategories } = useProductStore();
-  const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
-    const initializeHomePage = async () => {
-      try {
-        // Only fetch if we don't have data
-        if (categories.length === 0) {
-          await fetchCategories();
-        }
-        if (products.length === 0) {
-          await fetchProducts({ featured: true, limit: 8 });
-        }
-      } catch (error) {
-        console.error('Failed to fetch homepage data:', error);
-      } finally {
-        setPageLoading(false);
-      }
-    };
-
-    initializeHomePage();
+    // Fetch data if not already loaded
+    if (categories.length === 0) {
+      fetchCategories();
+    }
+    if (products.length === 0) {
+      fetchProducts({ featured: true, limit: 8 });
+    }
   }, [fetchProducts, fetchCategories]);
 
   const featuredProducts = products.filter(product => product.featured).slice(0, 6);
@@ -59,7 +48,8 @@ const HomePage: React.FC = () => {
     'Tablets': Tablet,
   };
 
-  if (pageLoading || (loading && products.length === 0 && categories.length === 0)) {
+  // Only show loading if we have no data at all
+  if (loading && products.length === 0 && categories.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
