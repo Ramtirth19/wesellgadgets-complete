@@ -295,17 +295,18 @@ const AdminDashboard: React.FC = () => {
             { label: 'Add Product', icon: Package, href: '/admin/products' },
             { label: 'View Orders', icon: ShoppingCart, href: '/admin/orders' },
             { label: 'Manage Users', icon: Users, href: '/admin/users' },
-            { label: 'View Reports', icon: TrendingUp, href: '/admin/analytics' },
+            { label: 'Settings', icon: TrendingUp, href: '/admin/settings' },
           ].map((action) => (
-            <button
+            <Link
               key={action.label}
+              to={action.href}
               className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
             >
               <action.icon className="w-8 h-8 text-primary-600 mb-2 group-hover:scale-110 transition-transform" />
               <span className="text-sm font-medium text-gray-900">
                 {action.label}
               </span>
-            </button>
+            </Link>
           ))}
         </div>
       </Card>

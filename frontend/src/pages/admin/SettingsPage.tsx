@@ -64,6 +64,12 @@ const SettingsPage: React.FC = () => {
   const handleSave = () => {
     // In a real app, save to backend
     console.log('Saving settings:', settings);
+    
+    // Show success message
+    const event = new CustomEvent('cart-updated', { 
+      detail: { message: 'Settings saved successfully!' } 
+    });
+    window.dispatchEvent(event);
   };
 
   const tabs = [

@@ -59,15 +59,30 @@ export const categoryService = {
   },
 
   async createCategory(categoryData: Omit<Category, 'id'>): Promise<{ success: boolean; data: { category: Category } }> {
-    return api.categories.create(categoryData);
+    try {
+      const response = await api.categories.create(categoryData);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to create category');
+    }
   },
 
   async updateCategory(id: string, categoryData: Partial<Category>): Promise<{ success: boolean; data: { category: Category } }> {
-    return api.categories.update(id, categoryData);
+    try {
+      const response = await api.categories.update(id, categoryData);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to update category');
+    }
   },
 
   async deleteCategory(id: string): Promise<{ success: boolean; message: string }> {
-    return api.categories.delete(id);
+    try {
+      const response = await api.categories.delete(id);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to delete category');
+    }
   },
 };
 

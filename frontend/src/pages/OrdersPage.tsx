@@ -124,7 +124,7 @@ const OrdersPage: React.FC = () => {
             Your Orders
           </h1>
           <p className="text-gray-600">
-            Track and manage your TechVault orders
+            Track and manage your MJOpenbox orders
           </p>
         </div>
 

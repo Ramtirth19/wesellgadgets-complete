@@ -96,6 +96,11 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = () => {
     addItem(product, quantity);
+    // Show success feedback
+    const event = new CustomEvent('cart-updated', { 
+      detail: { message: `${product.name} added to cart!` } 
+    });
+    window.dispatchEvent(event);
   };
 
   const nextImage = () => {
@@ -307,14 +312,16 @@ const ProductDetailPage: React.FC = () => {
                     onClick={handleAddToCart}
                     size="lg"
                     className="flex-1"
+                    disabled={!product.inStock}
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
-                    Add to Cart
+                    {product.inStock ? 'Add to Cart' : 'Out of Stock'}
                   </Button>
                   <Button
                     variant="secondary"
                     size="lg"
                     className="flex-1"
+                    disabled={!product.inStock}
                   >
                     Buy Now
                   </Button>

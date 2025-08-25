@@ -27,10 +27,12 @@ const CategoryManagementPage: React.FC = () => {
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [categoryToEdit, setCategoryToEdit] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [newCategory, setNewCategory] = useState({
     name: '',
     description: '',
-    image: ''
+    image: '',
+    slug: ''
   });
 
   useEffect(() => {
@@ -42,6 +44,10 @@ const CategoryManagementPage: React.FC = () => {
     category.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const generateSlug = (name: string) => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  };
+
   const handleDeleteCategory = (id: string) => {
     setCategoryToDelete(id);
     setShowDeleteModal(true);
@@ -50,21 +56,30 @@ const CategoryManagementPage: React.FC = () => {
   const confirmDelete = async () => {
     if (categoryToDelete) {
       setLoading(true);
+      setError('');
       try {
         await deleteCategory(categoryToDelete);
-        await fetchCategories(); // Refresh categories
-      } catch (error) {
-        console.error('Failed to delete category:', error);
-      } finally {
-        setLoading(false);
+        await fetchCategories();
         setShowDeleteModal(false);
         setCategoryToDelete(null);
+        
+        // Show success message
+        const event = new CustomEvent('cart-updated', { 
+          detail: { message: 'Category deleted successfully!' } 
+        });
+        window.dispatchEvent(event);
+      } catch (error: any) {
+        console.error('Failed to delete category:', error);
+        setError(error.message || 'Failed to delete category');
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   const handleAddCategory = () => {
-    setNewCategory({ name: '', description: '', image: '' });
+    setNewCategory({ name: '', description: '', image: '', slug: '' });
+    setError('');
     setShowAddModal(true);
   };
 
@@ -73,50 +88,77 @@ const CategoryManagementPage: React.FC = () => {
     setNewCategory({
       name: category.name,
       description: category.description,
-      image: category.image
+      image: category.image,
+      slug: category.slug
     });
+    setError('');
     setShowEditModal(true);
   };
 
   const handleSaveCategory = async () => {
-    if (!newCategory.name || !newCategory.description) return;
+    if (!newCategory.name.trim() || !newCategory.description.trim()) {
+      setError('Name and description are required');
+      return;
+    }
     
     setLoading(true);
+    setError('');
     try {
       const categoryData = {
-        ...newCategory,
-        slug: newCategory.name.toLowerCase().replace(/\s+/g, '-'),
-        productCount: 0
+        name: newCategory.name.trim(),
+        description: newCategory.description.trim(),
+        image: newCategory.image.trim() || 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400',
+        slug: generateSlug(newCategory.name)
       };
 
       await addCategory(categoryData);
-      await fetchCategories(); // Refresh categories
+      await fetchCategories();
       setShowAddModal(false);
-      setNewCategory({ name: '', description: '', image: '' });
-    } catch (error) {
+      setNewCategory({ name: '', description: '', image: '', slug: '' });
+      
+      // Show success message
+      const event = new CustomEvent('cart-updated', { 
+        detail: { message: 'Category added successfully!' } 
+      });
+      window.dispatchEvent(event);
+    } catch (error: any) {
       console.error('Failed to add category:', error);
+      setError(error.message || 'Failed to add category');
     } finally {
       setLoading(false);
     }
   };
 
   const handleUpdateCategory = async () => {
-    if (!newCategory.name || !newCategory.description || !categoryToEdit) return;
+    if (!newCategory.name.trim() || !newCategory.description.trim() || !categoryToEdit) {
+      setError('Name and description are required');
+      return;
+    }
     
     setLoading(true);
+    setError('');
     try {
       const categoryData = {
-        ...newCategory,
-        slug: newCategory.name.toLowerCase().replace(/\s+/g, '-')
+        name: newCategory.name.trim(),
+        description: newCategory.description.trim(),
+        image: newCategory.image.trim() || categoryToEdit.image,
+        slug: generateSlug(newCategory.name)
       };
 
       await updateCategory(categoryToEdit.id, categoryData);
-      await fetchCategories(); // Refresh categories
+      await fetchCategories();
       setShowEditModal(false);
       setCategoryToEdit(null);
-      setNewCategory({ name: '', description: '', image: '' });
-    } catch (error) {
+      setNewCategory({ name: '', description: '', image: '', slug: '' });
+      
+      // Show success message
+      const event = new CustomEvent('cart-updated', { 
+        detail: { message: 'Category updated successfully!' } 
+      });
+      window.dispatchEvent(event);
+    } catch (error: any) {
       console.error('Failed to update category:', error);
+      setError(error.message || 'Failed to update category');
     } finally {
       setLoading(false);
     }
@@ -208,14 +250,22 @@ const CategoryManagementPage: React.FC = () => {
                     <Button 
                       variant="secondary" 
                       size="sm"
-                      onClick={() => handleEditCategory(category)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleEditCategory(category);
+                      }}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
                     <Button 
                       variant="danger" 
                       size="sm"
-                      onClick={() => handleDeleteCategory(category.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDeleteCategory(category.id);
+                      }}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -242,15 +292,24 @@ const CategoryManagementPage: React.FC = () => {
       {/* Add Category Modal */}
       <Modal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+          setError('');
+        }}
         title="Add New Category"
       >
         <div className="space-y-4">
+          {error && (
+            <div className="p-3 bg-danger-50 border border-danger-200 rounded-lg text-danger-700 text-sm">
+              {error}
+            </div>
+          )}
           <Input
             label="Category Name"
             value={newCategory.name}
             onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
             placeholder="Enter category name"
+            required
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -262,24 +321,29 @@ const CategoryManagementPage: React.FC = () => {
               placeholder="Enter category description"
               className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
               rows={3}
+              required
             />
           </div>
           <Input
-            label="Image URL"
+            label="Image URL (optional)"
             value={newCategory.image}
             onChange={(e) => setNewCategory({ ...newCategory, image: e.target.value })}
-            placeholder="Enter image URL"
+            placeholder="https://example.com/image.jpg"
           />
-          <div className="flex space-x-4 justify-end">
+          <div className="flex space-x-4 justify-end pt-4">
             <Button
               variant="outline"
-              onClick={() => setShowAddModal(false)}
+              onClick={() => {
+                setShowAddModal(false);
+                setError('');
+              }}
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSaveCategory}
-              disabled={!newCategory.name || !newCategory.description || loading}
+              disabled={!newCategory.name.trim() || !newCategory.description.trim() || loading}
               loading={loading}
             >
               <Save className="w-4 h-4 mr-2" />
@@ -292,15 +356,24 @@ const CategoryManagementPage: React.FC = () => {
       {/* Edit Category Modal */}
       <Modal
         isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        onClose={() => {
+          setShowEditModal(false);
+          setError('');
+        }}
         title="Edit Category"
       >
         <div className="space-y-4">
+          {error && (
+            <div className="p-3 bg-danger-50 border border-danger-200 rounded-lg text-danger-700 text-sm">
+              {error}
+            </div>
+          )}
           <Input
             label="Category Name"
             value={newCategory.name}
             onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
             placeholder="Enter category name"
+            required
           />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -312,24 +385,29 @@ const CategoryManagementPage: React.FC = () => {
               placeholder="Enter category description"
               className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
               rows={3}
+              required
             />
           </div>
           <Input
             label="Image URL"
             value={newCategory.image}
             onChange={(e) => setNewCategory({ ...newCategory, image: e.target.value })}
-            placeholder="Enter image URL"
+            placeholder="https://example.com/image.jpg"
           />
-          <div className="flex space-x-4 justify-end">
+          <div className="flex space-x-4 justify-end pt-4">
             <Button
               variant="outline"
-              onClick={() => setShowEditModal(false)}
+              onClick={() => {
+                setShowEditModal(false);
+                setError('');
+              }}
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button
               onClick={handleUpdateCategory}
-              disabled={!newCategory.name || !newCategory.description || loading}
+              disabled={!newCategory.name.trim() || !newCategory.description.trim() || loading}
               loading={loading}
             >
               <Save className="w-4 h-4 mr-2" />
@@ -342,18 +420,30 @@ const CategoryManagementPage: React.FC = () => {
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setError('');
+        }}
         title="Delete Category"
       >
         <div className="space-y-4">
+          {error && (
+            <div className="p-3 bg-danger-50 border border-danger-200 rounded-lg text-danger-700 text-sm">
+              {error}
+            </div>
+          )}
           <p className="text-gray-600">
             Are you sure you want to delete this category? This action cannot be undone.
             Products in this category will not be deleted but will need to be recategorized.
           </p>
-          <div className="flex space-x-4 justify-end">
+          <div className="flex space-x-4 justify-end pt-4">
             <Button
               variant="outline"
-              onClick={() => setShowDeleteModal(false)}
+              onClick={() => {
+                setShowDeleteModal(false);
+                setError('');
+              }}
+              disabled={loading}
             >
               Cancel
             </Button>

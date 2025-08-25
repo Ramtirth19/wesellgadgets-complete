@@ -21,7 +21,7 @@ import Badge from '../components/ui/Badge';
 // Mock tracking data
 const mockTrackingData = {
   'TRK123456789': {
-    orderNumber: 'TV1234567890',
+    orderNumber: 'MJ1234567890',
     status: 'shipped',
     estimatedDelivery: '2024-01-30T00:00:00Z',
     carrier: 'FedEx',

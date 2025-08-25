@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAuthStore, useProductStore } from './store';
 import ScrollToTop from './components/ui/ScrollToTop';
+import ToastContainer from './components/ui/ToastContainer';
 
 // Layout Components
 import Header from './components/layout/Header';
@@ -102,6 +103,7 @@ const App: React.FC = () => {
           } />
         </Routes>
       </div>
+      <ToastContainer />
     </Router>
   );
 };

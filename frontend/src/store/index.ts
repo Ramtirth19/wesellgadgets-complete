@@ -274,6 +274,11 @@ export const useCartStore = create<CartState>()(
         },
         clearCart: () => {
           set({ items: [] });
+          // Show success message
+          const event = new CustomEvent('cart-updated', { 
+            detail: { message: 'Cart cleared successfully!' } 
+          });
+          window.dispatchEvent(event);
         },
         toggleCart: () => {
           set({ isOpen: !get().isOpen });

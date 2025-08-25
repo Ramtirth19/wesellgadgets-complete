@@ -32,6 +32,7 @@ const ProductManagementPage: React.FC = () => {
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [productToEdit, setProductToEdit] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
@@ -41,8 +42,10 @@ const ProductManagementPage: React.FC = () => {
     category: '',
     condition: 'good',
     stockCount: '',
+    sku: '',
     images: [''],
     specifications: {} as Record<string, string>,
+    features: [] as string[],
     featured: false
   });
 
@@ -58,6 +61,13 @@ const ProductManagementPage: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const generateSKU = (name: string, brand: string) => {
+    const nameCode = name.substring(0, 3).toUpperCase();
+    const brandCode = brand.substring(0, 3).toUpperCase();
+    const randomCode = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `${brandCode}${nameCode}${randomCode}`;
+  };
+
   const handleDeleteProduct = (id: string) => {
     setProductToDelete(id);
     setShowDeleteModal(true);
@@ -66,15 +76,23 @@ const ProductManagementPage: React.FC = () => {
   const confirmDelete = async () => {
     if (productToDelete) {
       setLoading(true);
+      setError('');
       try {
         await deleteProduct(productToDelete);
-        await fetchProducts(); // Refresh products
-      } catch (error) {
-        console.error('Failed to delete product:', error);
-      } finally {
-        setLoading(false);
+        await fetchProducts();
         setShowDeleteModal(false);
         setProductToDelete(null);
+        
+        // Show success message
+        const event = new CustomEvent('cart-updated', { 
+          detail: { message: 'Product deleted successfully!' } 
+        });
+        window.dispatchEvent(event);
+      } catch (error: any) {
+        console.error('Failed to delete product:', error);
+        setError(error.message || 'Failed to delete product');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -89,10 +107,13 @@ const ProductManagementPage: React.FC = () => {
       category: '',
       condition: 'good',
       stockCount: '',
+      sku: '',
       images: [''],
       specifications: {},
+      features: [],
       featured: false
     });
+    setError('');
     setShowAddModal(true);
   };
 
@@ -107,37 +128,55 @@ const ProductManagementPage: React.FC = () => {
       category: product.category,
       condition: product.condition,
       stockCount: product.stockCount.toString(),
-      images: product.images,
+      sku: product.sku || '',
+      images: product.images || [''],
       specifications: product.specifications || {},
+      features: product.features || [],
       featured: product.featured || false
     });
+    setError('');
     setShowEditModal(true);
   };
 
   const handleSaveProduct = async () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.category) return;
+    if (!newProduct.name.trim() || !newProduct.price || !newProduct.category || !newProduct.brand.trim()) {
+      setError('Name, price, brand, and category are required');
+      return;
+    }
     
     setLoading(true);
+    setError('');
     try {
+      const categoryId = categories.find(cat => cat.name === newProduct.category)?.id;
+      if (!categoryId) {
+        setError('Invalid category selected');
+        setLoading(false);
+        return;
+      }
+
       const productData = {
-        name: newProduct.name,
-        description: newProduct.description,
+        name: newProduct.name.trim(),
+        description: newProduct.description.trim(),
         price: parseFloat(newProduct.price),
         originalPrice: newProduct.originalPrice ? parseFloat(newProduct.originalPrice) : undefined,
-        brand: newProduct.brand,
-        category: newProduct.category,
+        brand: newProduct.brand.trim(),
+        category: categoryId,
         condition: newProduct.condition as 'excellent' | 'good' | 'fair' | 'refurbished',
-        stockCount: parseInt(newProduct.stockCount),
-        inStock: parseInt(newProduct.stockCount) > 0,
+        stockCount: parseInt(newProduct.stockCount) || 0,
+        sku: newProduct.sku.trim() || generateSKU(newProduct.name, newProduct.brand),
         images: newProduct.images.filter(img => img.trim() !== ''),
         specifications: newProduct.specifications,
+        features: newProduct.features,
         featured: newProduct.featured,
-        rating: 4.5,
-        reviewCount: 0
+        warranty: {
+          duration: 30,
+          type: 'Limited Warranty',
+          description: '30-day warranty covering manufacturing defects'
+        }
       };
 
       await addProduct(productData);
-      await fetchProducts(); // Refresh products
+      await fetchProducts();
       setShowAddModal(false);
       setNewProduct({
         name: '',
@@ -148,39 +187,60 @@ const ProductManagementPage: React.FC = () => {
         category: '',
         condition: 'good',
         stockCount: '',
+        sku: '',
         images: [''],
         specifications: {},
+        features: [],
         featured: false
       });
-    } catch (error) {
+      
+      // Show success message
+      const event = new CustomEvent('cart-updated', { 
+        detail: { message: 'Product added successfully!' } 
+      });
+      window.dispatchEvent(event);
+    } catch (error: any) {
       console.error('Failed to add product:', error);
+      setError(error.message || 'Failed to add product');
     } finally {
       setLoading(false);
     }
   };
 
   const handleUpdateProduct = async () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.category || !productToEdit) return;
+    if (!newProduct.name.trim() || !newProduct.price || !newProduct.category || !productToEdit) {
+      setError('Name, price, and category are required');
+      return;
+    }
     
     setLoading(true);
+    setError('');
     try {
+      const categoryId = categories.find(cat => cat.name === newProduct.category)?.id;
+      if (!categoryId) {
+        setError('Invalid category selected');
+        setLoading(false);
+        return;
+      }
+
       const productData = {
-        name: newProduct.name,
-        description: newProduct.description,
+        name: newProduct.name.trim(),
+        description: newProduct.description.trim(),
         price: parseFloat(newProduct.price),
         originalPrice: newProduct.originalPrice ? parseFloat(newProduct.originalPrice) : undefined,
-        brand: newProduct.brand,
-        category: newProduct.category,
+        brand: newProduct.brand.trim(),
+        category: categoryId,
         condition: newProduct.condition as 'excellent' | 'good' | 'fair' | 'refurbished',
-        stockCount: parseInt(newProduct.stockCount),
-        inStock: parseInt(newProduct.stockCount) > 0,
+        stockCount: parseInt(newProduct.stockCount) || 0,
+        sku: newProduct.sku.trim() || productToEdit.sku,
         images: newProduct.images.filter(img => img.trim() !== ''),
         specifications: newProduct.specifications,
+        features: newProduct.features,
         featured: newProduct.featured
       };
 
       await updateProduct(productToEdit.id, productData);
-      await fetchProducts(); // Refresh products
+      await fetchProducts();
       setShowEditModal(false);
       setProductToEdit(null);
       setNewProduct({
@@ -192,12 +252,21 @@ const ProductManagementPage: React.FC = () => {
         category: '',
         condition: 'good',
         stockCount: '',
+        sku: '',
         images: [''],
         specifications: {},
+        features: [],
         featured: false
       });
-    } catch (error) {
+      
+      // Show success message
+      const event = new CustomEvent('cart-updated', { 
+        detail: { message: 'Product updated successfully!' } 
+      });
+      window.dispatchEvent(event);
+    } catch (error: any) {
       console.error('Failed to update product:', error);
+      setError(error.message || 'Failed to update product');
     } finally {
       setLoading(false);
     }
@@ -377,7 +446,11 @@ const ProductManagementPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => window.open(`/product/${product.id}`, '_blank')}
+                      >
                         <Eye className="w-4 h-4" />
                       </Button>
                       <Button 
@@ -407,122 +480,177 @@ const ProductManagementPage: React.FC = () => {
       {/* Add Product Modal */}
       <Modal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+          setError('');
+        }}
         title="Add New Product"
-        size="lg"
+        size="xl"
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Product Name"
-              value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              placeholder="Enter product name"
-            />
-            <Input
-              label="Brand"
-              value={newProduct.brand}
-              onChange={(e) => setNewProduct({ ...newProduct, brand: e.target.value })}
-              placeholder="Enter brand name"
-            />
-          </div>
+        <div className="space-y-6">
+          {error && (
+            <div className="p-3 bg-danger-50 border border-danger-200 rounded-lg text-danger-700 text-sm">
+              {error}
+            </div>
+          )}
+          
+          {/* Basic Information */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              value={newProduct.description}
-              onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-              placeholder="Enter product description"
-              className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
-              rows={3}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              label="Price ($)"
-              type="number"
-              step="0.01"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-              placeholder="0.00"
-            />
-            <Input
-              label="Original Price ($)"
-              type="number"
-              step="0.01"
-              value={newProduct.originalPrice}
-              onChange={(e) => setNewProduct({ ...newProduct, originalPrice: e.target.value })}
-              placeholder="0.00"
-            />
-            <Input
-              label="Stock Count"
-              type="number"
-              value={newProduct.stockCount}
-              onChange={(e) => setNewProduct({ ...newProduct, stockCount: e.target.value })}
-              placeholder="0"
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
-              <select
-                value={newProduct.category}
-                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
-              >
-                <option value="">Select category</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.name}>{category.name}</option>
-                ))}
-              </select>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Product Name *"
+                value={newProduct.name}
+                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                placeholder="Enter product name"
+                required
+              />
+              <Input
+                label="Brand *"
+                value={newProduct.brand}
+                onChange={(e) => setNewProduct({ ...newProduct, brand: e.target.value })}
+                placeholder="Enter brand name"
+                required
+              />
             </div>
-            <div>
+            <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Condition
+                Description *
               </label>
-              <select
-                value={newProduct.condition}
-                onChange={(e) => setNewProduct({ ...newProduct, condition: e.target.value })}
+              <textarea
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                placeholder="Enter detailed product description"
                 className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
-              >
-                <option value="excellent">Excellent</option>
-                <option value="good">Good</option>
-                <option value="fair">Fair</option>
-                <option value="refurbished">Refurbished</option>
-              </select>
+                rows={4}
+                required
+              />
             </div>
           </div>
-          <Input
-            label="Image URL"
-            value={newProduct.images[0]}
-            onChange={(e) => setNewProduct({ ...newProduct, images: [e.target.value] })}
-            placeholder="Enter image URL"
-          />
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="featured"
-              checked={newProduct.featured}
-              onChange={(e) => setNewProduct({ ...newProduct, featured: e.target.checked })}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-            />
-            <label htmlFor="featured" className="ml-2 text-sm text-gray-700">
-              Featured Product
-            </label>
+
+          {/* Pricing & Inventory */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Pricing & Inventory</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Input
+                label="Price ($) *"
+                type="number"
+                step="0.01"
+                min="0"
+                value={newProduct.price}
+                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                placeholder="0.00"
+                required
+              />
+              <Input
+                label="Original Price ($)"
+                type="number"
+                step="0.01"
+                min="0"
+                value={newProduct.originalPrice}
+                onChange={(e) => setNewProduct({ ...newProduct, originalPrice: e.target.value })}
+                placeholder="0.00"
+              />
+              <Input
+                label="Stock Count *"
+                type="number"
+                min="0"
+                value={newProduct.stockCount}
+                onChange={(e) => setNewProduct({ ...newProduct, stockCount: e.target.value })}
+                placeholder="0"
+                required
+              />
+              <Input
+                label="SKU"
+                value={newProduct.sku}
+                onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
+                placeholder="Auto-generated if empty"
+              />
+            </div>
           </div>
-          <div className="flex space-x-4 justify-end">
+
+          {/* Category & Condition */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Classification</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category *
+                </label>
+                <select
+                  value={newProduct.category}
+                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                  className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
+                  required
+                >
+                  <option value="">Select category</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.name}>{category.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Condition *
+                </label>
+                <select
+                  value={newProduct.condition}
+                  onChange={(e) => setNewProduct({ ...newProduct, condition: e.target.value })}
+                  className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
+                  required
+                >
+                  <option value="excellent">Excellent (Like New)</option>
+                  <option value="good">Good</option>
+                  <option value="fair">Fair</option>
+                  <option value="refurbished">Certified Refurbished</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Images */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Images</h3>
+            <Input
+              label="Primary Image URL *"
+              value={newProduct.images[0]}
+              onChange={(e) => setNewProduct({ ...newProduct, images: [e.target.value] })}
+              placeholder="https://example.com/image.jpg"
+              required
+            />
+          </div>
+
+          {/* Options */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Options</h3>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="featured"
+                checked={newProduct.featured}
+                onChange={(e) => setNewProduct({ ...newProduct, featured: e.target.checked })}
+                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <label htmlFor="featured" className="ml-2 text-sm text-gray-700">
+                Featured Product (Show on homepage)
+              </label>
+            </div>
+          </div>
+
+          <div className="flex space-x-4 justify-end pt-6 border-t">
             <Button
               variant="outline"
-              onClick={() => setShowAddModal(false)}
+              onClick={() => {
+                setShowAddModal(false);
+                setError('');
+              }}
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSaveProduct}
-              disabled={!newProduct.name || !newProduct.price || !newProduct.category || loading}
+              disabled={!newProduct.name.trim() || !newProduct.price || !newProduct.category || !newProduct.brand.trim() || loading}
               loading={loading}
             >
               <Save className="w-4 h-4 mr-2" />
@@ -535,122 +663,177 @@ const ProductManagementPage: React.FC = () => {
       {/* Edit Product Modal */}
       <Modal
         isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        onClose={() => {
+          setShowEditModal(false);
+          setError('');
+        }}
         title="Edit Product"
-        size="lg"
+        size="xl"
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Product Name"
-              value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              placeholder="Enter product name"
-            />
-            <Input
-              label="Brand"
-              value={newProduct.brand}
-              onChange={(e) => setNewProduct({ ...newProduct, brand: e.target.value })}
-              placeholder="Enter brand name"
-            />
-          </div>
+        <div className="space-y-6">
+          {error && (
+            <div className="p-3 bg-danger-50 border border-danger-200 rounded-lg text-danger-700 text-sm">
+              {error}
+            </div>
+          )}
+          
+          {/* Basic Information */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              value={newProduct.description}
-              onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-              placeholder="Enter product description"
-              className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
-              rows={3}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              label="Price ($)"
-              type="number"
-              step="0.01"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-              placeholder="0.00"
-            />
-            <Input
-              label="Original Price ($)"
-              type="number"
-              step="0.01"
-              value={newProduct.originalPrice}
-              onChange={(e) => setNewProduct({ ...newProduct, originalPrice: e.target.value })}
-              placeholder="0.00"
-            />
-            <Input
-              label="Stock Count"
-              type="number"
-              value={newProduct.stockCount}
-              onChange={(e) => setNewProduct({ ...newProduct, stockCount: e.target.value })}
-              placeholder="0"
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
-              <select
-                value={newProduct.category}
-                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
-              >
-                <option value="">Select category</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.name}>{category.name}</option>
-                ))}
-              </select>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Product Name *"
+                value={newProduct.name}
+                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                placeholder="Enter product name"
+                required
+              />
+              <Input
+                label="Brand *"
+                value={newProduct.brand}
+                onChange={(e) => setNewProduct({ ...newProduct, brand: e.target.value })}
+                placeholder="Enter brand name"
+                required
+              />
             </div>
-            <div>
+            <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Condition
+                Description *
               </label>
-              <select
-                value={newProduct.condition}
-                onChange={(e) => setNewProduct({ ...newProduct, condition: e.target.value })}
+              <textarea
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                placeholder="Enter detailed product description"
                 className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
-              >
-                <option value="excellent">Excellent</option>
-                <option value="good">Good</option>
-                <option value="fair">Fair</option>
-                <option value="refurbished">Refurbished</option>
-              </select>
+                rows={4}
+                required
+              />
             </div>
           </div>
-          <Input
-            label="Image URL"
-            value={newProduct.images[0]}
-            onChange={(e) => setNewProduct({ ...newProduct, images: [e.target.value] })}
-            placeholder="Enter image URL"
-          />
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="featured-edit"
-              checked={newProduct.featured}
-              onChange={(e) => setNewProduct({ ...newProduct, featured: e.target.checked })}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-            />
-            <label htmlFor="featured-edit" className="ml-2 text-sm text-gray-700">
-              Featured Product
-            </label>
+
+          {/* Pricing & Inventory */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Pricing & Inventory</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Input
+                label="Price ($) *"
+                type="number"
+                step="0.01"
+                min="0"
+                value={newProduct.price}
+                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                placeholder="0.00"
+                required
+              />
+              <Input
+                label="Original Price ($)"
+                type="number"
+                step="0.01"
+                min="0"
+                value={newProduct.originalPrice}
+                onChange={(e) => setNewProduct({ ...newProduct, originalPrice: e.target.value })}
+                placeholder="0.00"
+              />
+              <Input
+                label="Stock Count *"
+                type="number"
+                min="0"
+                value={newProduct.stockCount}
+                onChange={(e) => setNewProduct({ ...newProduct, stockCount: e.target.value })}
+                placeholder="0"
+                required
+              />
+              <Input
+                label="SKU"
+                value={newProduct.sku}
+                onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
+                placeholder="Product SKU"
+              />
+            </div>
           </div>
-          <div className="flex space-x-4 justify-end">
+
+          {/* Category & Condition */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Classification</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category *
+                </label>
+                <select
+                  value={newProduct.category}
+                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                  className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
+                  required
+                >
+                  <option value="">Select category</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.name}>{category.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Condition *
+                </label>
+                <select
+                  value={newProduct.condition}
+                  onChange={(e) => setNewProduct({ ...newProduct, condition: e.target.value })}
+                  className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 py-3 px-4"
+                  required
+                >
+                  <option value="excellent">Excellent (Like New)</option>
+                  <option value="good">Good</option>
+                  <option value="fair">Fair</option>
+                  <option value="refurbished">Certified Refurbished</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Images */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Images</h3>
+            <Input
+              label="Primary Image URL *"
+              value={newProduct.images[0]}
+              onChange={(e) => setNewProduct({ ...newProduct, images: [e.target.value] })}
+              placeholder="https://example.com/image.jpg"
+              required
+            />
+          </div>
+
+          {/* Options */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Options</h3>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="featured-edit"
+                checked={newProduct.featured}
+                onChange={(e) => setNewProduct({ ...newProduct, featured: e.target.checked })}
+                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <label htmlFor="featured-edit" className="ml-2 text-sm text-gray-700">
+                Featured Product (Show on homepage)
+              </label>
+            </div>
+          </div>
+
+          <div className="flex space-x-4 justify-end pt-6 border-t">
             <Button
               variant="outline"
-              onClick={() => setShowEditModal(false)}
+              onClick={() => {
+                setShowEditModal(false);
+                setError('');
+              }}
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button
               onClick={handleUpdateProduct}
-              disabled={!newProduct.name || !newProduct.price || !newProduct.category || loading}
+              disabled={!newProduct.name.trim() || !newProduct.price || !newProduct.category || !newProduct.brand.trim() || loading}
               loading={loading}
             >
               <Save className="w-4 h-4 mr-2" />
@@ -663,17 +846,29 @@ const ProductManagementPage: React.FC = () => {
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setError('');
+        }}
         title="Delete Product"
       >
         <div className="space-y-4">
+          {error && (
+            <div className="p-3 bg-danger-50 border border-danger-200 rounded-lg text-danger-700 text-sm">
+              {error}
+            </div>
+          )}
           <p className="text-gray-600">
             Are you sure you want to delete this product? This action cannot be undone.
           </p>
-          <div className="flex space-x-4 justify-end">
+          <div className="flex space-x-4 justify-end pt-4">
             <Button
               variant="outline"
-              onClick={() => setShowDeleteModal(false)}
+              onClick={() => {
+                setShowDeleteModal(false);
+                setError('');
+              }}
+              disabled={loading}
             >
               Cancel
             </Button>

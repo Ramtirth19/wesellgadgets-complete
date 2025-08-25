@@ -72,10 +72,20 @@ const OrderManagementPage: React.FC = () => {
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     setLoading(true);
     try {
-      await updateOrderStatus(orderId, newStatus);
+      await updateOrderStatus(orderId, newStatus as any);
       await fetchOrders(); // Refresh orders
+      
+      // Show success message
+      const event = new CustomEvent('cart-updated', { 
+        detail: { message: `Order status updated to ${newStatus}` } 
+      });
+      window.dispatchEvent(event);
     } catch (error) {
       console.error('Failed to update order status:', error);
+      const event = new CustomEvent('app-error', { 
+        detail: { message: 'Failed to update order status' } 
+      });
+      window.dispatchEvent(event);
     } finally {
       setLoading(false);
     }

@@ -92,12 +92,12 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link to="/track" className="text-gray-400 hover:text-white transition-colors">
-                  Track Your Order
+                  Track Order
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-400 hover:text-white transition-colors">
-                  Contact Us
+                <Link to="/support" className="text-gray-400 hover:text-white transition-colors">
+                  Support
                 </Link>
               </li>
             </ul>
