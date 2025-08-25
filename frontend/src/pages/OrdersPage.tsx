@@ -35,6 +35,8 @@ const OrdersPage: React.FC = () => {
         const response = await orderService.getUserOrders();
         if (response.success && response.data) {
           setOrders(response.data.orders || []);
+        } else {
+          setOrders([]);
         }
       } catch (error) {
         console.error('Failed to fetch orders:', error);

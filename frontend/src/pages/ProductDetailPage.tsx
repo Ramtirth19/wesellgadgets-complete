@@ -43,7 +43,6 @@ const ProductDetailPage: React.FC = () => {
         const existingProduct = products.find(p => p.id === id);
         if (existingProduct) {
           setProduct(existingProduct);
-          setLoading(false);
           return;
         }
         
@@ -51,9 +50,12 @@ const ProductDetailPage: React.FC = () => {
         const fetchedProduct = await fetchProductById(id);
         if (fetchedProduct) {
           setProduct(fetchedProduct);
+        } else {
+          setProduct(null);
         }
       } catch (error) {
         console.error('Failed to load product:', error);
+        setProduct(null);
       } finally {
         setLoading(false);
       }

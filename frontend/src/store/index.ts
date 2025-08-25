@@ -338,14 +338,16 @@ export const useProductStore = create<ProductState>()(
           set({ 
             products: [],
             loading: false,
-            error: 'Failed to fetch products'
+            error: null // Don't show error for empty results
           });
         }
       } catch (error: any) {
         set({ 
           loading: false, 
-          error: error.message || 'Failed to fetch products' 
+          error: null, // Don't show error, just log it
+          products: [] // Set empty array as fallback
         });
+        console.error('Failed to fetch products:', error);
       }
     },
     

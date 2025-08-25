@@ -12,6 +12,7 @@ const ProductsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [pageLoading, setPageLoading] = useState(true);
   
   const {
     products,
@@ -30,17 +31,28 @@ const ProductsPage: React.FC = () => {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     
-    const fetchFilters: any = {};
-    if (category) fetchFilters.category = category;
-    if (search) fetchFilters.search = search;
+    const loadProducts = async () => {
+      setPageLoading(true);
+      try {
+        const fetchFilters: any = {};
+        if (category) fetchFilters.category = category;
+        if (search) fetchFilters.search = search;
+        
+        // Update local filters
+        if (category) {
+          updateFilters({ category });
+        }
+        
+        // Fetch products with filters
+        await fetchProducts(fetchFilters);
+      } catch (error) {
+        console.error('Failed to load products:', error);
+      } finally {
+        setPageLoading(false);
+      }
+    };
     
-    // Update local filters
-    if (category) {
-      updateFilters({ category });
-    }
-    
-    // Fetch products with filters
-    fetchProducts(fetchFilters);
+    loadProducts();
   }, [searchParams, fetchProducts, updateFilters]);
 
   const filteredProducts = getFilteredProducts();
@@ -77,10 +89,20 @@ const ProductsPage: React.FC = () => {
 
   const handleSortChange = (newSortBy: string) => {
     setSortBy(newSortBy as any);
-    fetchProducts({ ...filters, sort: newSortBy });
+    const currentFilters = { ...filters };
+    const fetchFilters: any = { sort: newSortBy };
+    
+    if (currentFilters.category) fetchFilters.category = currentFilters.category;
+    if (currentFilters.priceRange[0] > 0) fetchFilters.minPrice = currentFilters.priceRange[0];
+    if (currentFilters.priceRange[1] < 5000) fetchFilters.maxPrice = currentFilters.priceRange[1];
+    if (currentFilters.condition.length > 0) fetchFilters.condition = currentFilters.condition;
+    if (currentFilters.brand.length > 0) fetchFilters.brand = currentFilters.brand;
+    if (currentFilters.inStock) fetchFilters.inStock = currentFilters.inStock;
+    
+    fetchProducts(fetchFilters);
   };
 
-  if (loading && products.length === 0) {
+  if (pageLoading || (loading && products.length === 0)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

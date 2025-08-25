@@ -37,6 +37,7 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 const App: React.FC = () => {
   const { checkAuth } = useAuthStore();
   const { fetchProducts, fetchCategories } = useProductStore();
+  const [appLoading, setAppLoading] = useState(true);
 
   useEffect(() => {
     // Initialize app data
@@ -52,11 +53,24 @@ const App: React.FC = () => {
         ]);
       } catch (error) {
         console.error('Failed to initialize app:', error);
+      } finally {
+        setAppLoading(false);
       }
     };
 
     initializeApp();
   }, [checkAuth, fetchProducts, fetchCategories]);
+
+  if (appLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading MJOpenbox...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>

@@ -23,7 +23,9 @@ export const api = {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
+        console.error('API Error:', errorMessage);
+        throw new Error(errorMessage);
       }
       
       return await response.json();

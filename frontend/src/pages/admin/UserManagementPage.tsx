@@ -66,7 +66,7 @@ const mockUsers = [
   {
     id: '4',
     name: 'Admin User',
-    email: 'admin@techvault.com',
+    email: 'admin@mjopenbox.com',
     phone: '+1 (555) 456-7890',
     role: 'admin',
     status: 'active',

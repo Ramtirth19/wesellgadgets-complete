@@ -50,8 +50,18 @@ const ProductManagementPage: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          fetchProducts(),
+          fetchCategories()
+        ]);
+      } catch (error) {
+        console.error('Failed to load product management data:', error);
+      }
+    };
+    
+    loadData();
   }, [fetchProducts, fetchCategories]);
   
   const filteredProducts = products.filter(product => {

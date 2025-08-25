@@ -37,7 +37,21 @@ export const dashboardService = {
     } catch (error: any) {
       console.error('Error fetching dashboard stats:', error);
       return {
-        success: false
+        success: false,
+        data: {
+          overview: {
+            totalUsers: 0,
+            totalProducts: 0,
+            totalOrders: 0,
+            totalCategories: 0,
+            monthlyRevenue: 0,
+            monthlyOrders: 0
+          },
+          recentOrders: [],
+          lowStockProducts: [],
+          topSellingProducts: [],
+          orderStatusDistribution: {}
+        }
       };
     }
   },
@@ -49,7 +63,12 @@ export const dashboardService = {
     } catch (error: any) {
       console.error('Error fetching sales analytics:', error);
       return {
-        success: false
+        success: false,
+        data: {
+          dailySales: [],
+          categoryPerformance: [],
+          period: period
+        }
       };
     }
   }
