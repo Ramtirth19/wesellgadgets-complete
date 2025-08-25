@@ -40,9 +40,9 @@ export interface ProductResponse {
 export interface SingleProductResponse {
   success: boolean;
   data?: {
-    product: any;
+    product: Product;
   };
-  product?: any;
+  product?: Product;
 }
 
 export const productService = {
@@ -79,15 +79,16 @@ export const productService = {
       // Transform products to ensure consistent format
       const transformedProducts: Product[] = products.map((product: any) => ({
         id: product._id || product.id,
+        _id: product._id,
         name: product.name || '',
         description: product.description || '',
         price: Number(product.price) || 0,
         originalPrice: product.originalPrice ? Number(product.originalPrice) : undefined,
         condition: product.condition || 'good',
-        category: product.category?.name || product.category || '',
+        category: (product.category as any)?.name || product.category || '',
         brand: product.brand || '',
         images: Array.isArray(product.images) ? product.images : [],
-        specifications: product.specifications || {},
+        specifications: (product as any).specifications || {},
         inStock: product.inStock !== undefined ? Boolean(product.inStock) : Boolean(product.stockCount > 0),
         stockCount: Number(product.stockCount) || 0,
         rating: Number(product.rating) || 0,
@@ -119,13 +120,13 @@ export const productService = {
     try {
       const response: SingleProductResponse = await api.products.getById(id);
       
-      let productData: any = null;
+      let productData: Product | null = null;
       if (response.data?.product) {
         productData = response.data.product;
       } else if (response.product) {
         productData = response.product;
-      } else if (response && typeof response === 'object' && response.name) {
-        productData = response;
+      } else if (response && typeof response === 'object' && 'name' in response) {
+        productData = response as Product;
       }
 
       if (!productData) {
@@ -135,15 +136,16 @@ export const productService = {
       // Transform product to ensure consistent format
       const transformedProduct: Product = {
         id: productData._id || productData.id,
+        _id: productData._id,
         name: productData.name || '',
         description: productData.description || '',
         price: Number(productData.price) || 0,
         originalPrice: productData.originalPrice ? Number(productData.originalPrice) : undefined,
         condition: productData.condition || 'good',
-        category: productData.category?.name || productData.category || '',
+        category: (productData.category as any)?.name || productData.category || '',
         brand: productData.brand || '',
         images: Array.isArray(productData.images) ? productData.images : [],
-        specifications: productData.specifications || {},
+        specifications: (productData as any).specifications || {},
         inStock: productData.inStock !== undefined ? Boolean(productData.inStock) : Boolean(productData.stockCount > 0),
         stockCount: Number(productData.stockCount) || 0,
         rating: Number(productData.rating) || 0,
