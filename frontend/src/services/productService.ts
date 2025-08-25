@@ -118,15 +118,15 @@ export const productService = {
 
   async getProductById(id: string): Promise<Product | null> {
     try {
-      const response: SingleProductResponse = await api.products.getById(id);
+      const response: any = await api.products.getById(id);
       
-      let productData: Product | null = null;
+      let productData: any = null;
       if (response.data?.product) {
         productData = response.data.product;
       } else if (response.product) {
         productData = response.product;
-      } else if (response && typeof response === 'object' && 'name' in response) {
-        productData = response as Product;
+      } else if (response && typeof response === 'object' && response.name) {
+        productData = response;
       }
 
       if (!productData) {
@@ -135,17 +135,17 @@ export const productService = {
 
       // Transform product to ensure consistent format
       const transformedProduct: Product = {
-        id: productData._id || productData.id,
+        id: productData._id || productData.id || '',
         _id: productData._id,
         name: productData.name || '',
         description: productData.description || '',
         price: Number(productData.price) || 0,
         originalPrice: productData.originalPrice ? Number(productData.originalPrice) : undefined,
         condition: productData.condition || 'good',
-        category: (productData.category as any)?.name || productData.category || '',
+        category: productData.category?.name || productData.category || '',
         brand: productData.brand || '',
         images: Array.isArray(productData.images) ? productData.images : [],
-        specifications: (productData as any).specifications || {},
+        specifications: productData.specifications || {},
         inStock: productData.inStock !== undefined ? Boolean(productData.inStock) : Boolean(productData.stockCount > 0),
         stockCount: Number(productData.stockCount) || 0,
         rating: Number(productData.rating) || 0,
@@ -164,12 +164,14 @@ export const productService = {
   async createProduct(productData: Omit<Product, 'id' | 'createdAt'>): Promise<{ success: boolean; data: { product: Product } }> {
     try {
       const response: any = await api.products.create(productData);
+      const product = response.data?.product || response.product || response;
       return {
         success: true,
         data: {
           product: {
-            ...response.data?.product || response.product || response,
-            id: response.data?.product?._id || response.product?._id || response._id
+            ...product,
+            id: product._id || product.id || '',
+            _id: product._id
           }
         }
       };
@@ -181,12 +183,14 @@ export const productService = {
   async updateProduct(id: string, productData: Partial<Product>): Promise<{ success: boolean; data: { product: Product } }> {
     try {
       const response: any = await api.products.update(id, productData);
+      const product = response.data?.product || response.product || response;
       return {
         success: true,
         data: {
           product: {
-            ...response.data?.product || response.product || response,
-            id: response.data?.product?._id || response.product?._id || response._id
+            ...product,
+            id: product._id || product.id || '',
+            _id: product._id
           }
         }
       };
