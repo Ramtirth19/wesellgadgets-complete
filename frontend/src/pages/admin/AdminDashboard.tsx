@@ -205,7 +205,7 @@ const AdminDashboard: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                    {formatPrice(product.price || 0)}
+                <div className={`w-12 h-12 ${stat.bg} rounded-lg flex items-center justify-center`}>
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
               </div>
@@ -251,10 +251,10 @@ const AdminDashboard: React.FC = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-gray-900">
-                      {product.name || 'Unknown Product'}
+                      {formatPrice(order.totalPrice || order.total || 0)}
                     </p>
-                    <Badge variant={getStatusColor(order.status) as any} size="sm">
-                      {order.status}
+                    <Badge variant={getStatusColor(order.status || 'pending') as any} size="sm">
+                      {order.status || 'pending'}
                     </Badge>
                   </div>
                 </div>
@@ -264,12 +264,10 @@ const AdminDashboard: React.FC = () => {
           
           {recentOrders.length > 0 && (
             <div className="mt-4 text-center">
-              <Link to="/admin/orders">
-                <Button variant="outline" size="sm">
-                  <Eye className="w-4 h-4 mr-2" />
-                  View All Orders
-                </Button>
-              </Link>
+              <Button variant="outline" size="sm">
+                <Eye className="w-4 h-4 mr-2" />
+                View All Orders
+              </Button>
             </div>
           )}
         </Card>
@@ -313,13 +311,22 @@ const AdminDashboard: React.FC = () => {
                       {product.stockCount} left
                     </p>
                     <p className="text-sm text-gray-500">
-                      {product.brand || 'Unknown Brand'}
+                      {formatPrice(product.price)}
                     </p>
                   </div>
                 </div>
               ))
             )}
-                    {product.stockCount || 0} left
+          </div>
+          
+          {lowStockProducts.length > 0 && (
+            <div className="mt-4 text-center">
+              <Button variant="outline" size="sm">
+                <Package className="w-4 h-4 mr-2" />
+                Manage Inventory
+              </Button>
+            </div>
+          )}
         </Card>
       </div>
 
