@@ -117,7 +117,7 @@ const CategoriesPage: React.FC = () => {
               </Link>
               <Link to="/search">
                 <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
-                  Advanced Search
+                  Search Products
                 </Button>
               </Link>
             </div>
