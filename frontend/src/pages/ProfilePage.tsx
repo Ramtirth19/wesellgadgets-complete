@@ -39,6 +39,12 @@ const ProfilePage: React.FC = () => {
   const handleSave = () => {
     // In a real app, save to backend
     setIsEditing(false);
+    
+    // Show success message
+    const event = new CustomEvent('cart-updated', { 
+      detail: { message: 'Profile updated successfully!' } 
+    });
+    window.dispatchEvent(event);
   };
 
   const handleCancel = () => {

@@ -80,15 +80,30 @@ export const productService = {
   },
 
   async createProduct(productData: Omit<Product, 'id' | 'createdAt'>): Promise<{ success: boolean; data: { product: Product } }> {
-    return api.products.create(productData);
+    try {
+      const response = await api.products.create(productData);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to create product');
+    }
   },
 
   async updateProduct(id: string, productData: Partial<Product>): Promise<{ success: boolean; data: { product: Product } }> {
-    return api.products.update(id, productData);
+    try {
+      const response = await api.products.update(id, productData);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to update product');
+    }
   },
 
   async deleteProduct(id: string): Promise<{ success: boolean; message: string }> {
-    return api.products.delete(id);
+    try {
+      const response = await api.products.delete(id);
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to delete product');
+    }
   },
 
   async searchProducts(query: string): Promise<ProductResponse> {

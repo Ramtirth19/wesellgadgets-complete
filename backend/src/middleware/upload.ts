@@ -28,14 +28,24 @@ const storage = multer.diskStorage({
 });
 
 // File filter to only allow specific image types
-const imageFileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     // Check if the file's mimetype is one of the allowed image types
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/gif') {
+    const allowedTypes = [
+        'image/jpeg',
+        'image/png', 
+        'image/gif',
+        'image/webp',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
         // Accept the file
         cb(null, true);
     } else {
         // Reject the file with a specific error message
-        cb(new Error('Invalid file type. Only JPEG, PNG, and GIF are allowed.'));
+        cb(new Error('Invalid file type. Only images and documents are allowed.'));
     }
 };
 
@@ -45,7 +55,7 @@ const upload = multer({
     limits: {
         fileSize: 1024 * 1024 * 5 // 5 MB file size limit
     },
-    fileFilter: imageFileFilter
+    fileFilter: fileFilter
 });
 
 // --- 3. Export the Middleware ---

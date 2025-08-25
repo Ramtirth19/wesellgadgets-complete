@@ -118,8 +118,18 @@ const UserManagementPage: React.FC = () => {
         setUsers(users.filter(user => user.id !== userToDelete));
         setShowDeleteModal(false);
         setUserToDelete(null);
+        
+        // Show success message
+        const event = new CustomEvent('cart-updated', { 
+          detail: { message: 'User deleted successfully!' } 
+        });
+        window.dispatchEvent(event);
       } catch (error) {
         console.error('Failed to delete user:', error);
+        const event = new CustomEvent('app-error', { 
+          detail: { message: 'Failed to delete user' } 
+        });
+        window.dispatchEvent(event);
       } finally {
         setLoading(false);
       }
@@ -174,8 +184,18 @@ const UserManagementPage: React.FC = () => {
         role: 'customer',
         status: 'active'
       });
+      
+      // Show success message
+      const event = new CustomEvent('cart-updated', { 
+        detail: { message: 'User added successfully!' } 
+      });
+      window.dispatchEvent(event);
     } catch (error) {
       console.error('Failed to add user:', error);
+      const event = new CustomEvent('app-error', { 
+        detail: { message: 'Failed to add user' } 
+      });
+      window.dispatchEvent(event);
     } finally {
       setLoading(false);
     }
@@ -201,8 +221,18 @@ const UserManagementPage: React.FC = () => {
         role: 'customer',
         status: 'active'
       });
+      
+      // Show success message
+      const event = new CustomEvent('cart-updated', { 
+        detail: { message: 'User updated successfully!' } 
+      });
+      window.dispatchEvent(event);
     } catch (error) {
       console.error('Failed to update user:', error);
+      const event = new CustomEvent('app-error', { 
+        detail: { message: 'Failed to update user' } 
+      });
+      window.dispatchEvent(event);
     } finally {
       setLoading(false);
     }
@@ -215,6 +245,12 @@ const UserManagementPage: React.FC = () => {
         ? { ...user, status: newStatus }
         : user
     ));
+    
+    // Show success message
+    const event = new CustomEvent('cart-updated', { 
+      detail: { message: `User status updated to ${newStatus}` } 
+    });
+    window.dispatchEvent(event);
   };
 
   const getRoleIcon = (role: string) => {

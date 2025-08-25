@@ -10,10 +10,9 @@ router.get('/:id', categoryController.getCategoryById);
 router.get('/slug/:slug', categoryController.getCategoryBySlug);
 
 // Protected routes (require authentication)
-router.use(auth);
-
-router.post('/', categoryController.createCategory);
-router.put('/:id', categoryController.updateCategory);
-router.delete('/:id', categoryController.deleteCategory);
+// Admin-only routes
+router.post('/', auth, categoryController.createCategory);
+router.put('/:id', auth, categoryController.updateCategory);
+router.delete('/:id', auth, categoryController.deleteCategory);
 
 export default router;

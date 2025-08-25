@@ -83,54 +83,65 @@ const categoryController = {
   // Create new category
   async createCategory(req: Request, res: Response) {
     try {
-      const { name, description, color, icon } = req.body;
+      const { name, description, image } = req.body;
 
       // Check if category with same name exists
       const existingCategory = await Category.findOne({ name });
       if (existingCategory) {
-        return res.status(400).json({ message: 'Category with this name already exists' });
+        return res.status(400).json({ 
+          success: false,
+          message: 'Category with this name already exists' 
+        });
       }
 
       // Generate slug
       const slug = slugify(name, { lower: true, strict: true });
 
-
       const category = new Category({
         name,
         slug,
         description,
-        color,
-        icon,
-        createdBy: req.user?.userId
+        image: image || 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400',
+        isActive: true,
+        sortOrder: 0
       });
 
       await category.save();
 
-      // No parent-child logic
-
       return res.status(201).json({
+        success: true,
         message: 'Category created successfully',
-        category
+        data: { category }
       });
     } catch (error: any) {
-      return res.status(500).json({ message: 'Server error', error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: 'Server error', 
+        error: error.message 
+      });
     }
   },
 
   // Update category
   async updateCategory(req: Request, res: Response) {
     try {
-      const { name, description, icon } = req.body;
+      const { name, description, image } = req.body;
       const categoryId = req.params.id;
 
       const category = await Category.findById(categoryId);
       if (!category) {
-        return res.status(404).json({ message: 'Category not found' });
+        return res.status(404).json({ 
+          success: false,
+          message: 'Category not found' 
+        });
       }
 
       // Check if user has permission to update
       if (req.user?.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied' });
+        return res.status(403).json({ 
+          success: false,
+          message: 'Access denied' 
+        });
       }
 
       // Update fields
@@ -139,19 +150,21 @@ const categoryController = {
         category.slug = slugify(name, { lower: true, strict: true });
       }
       if (description !== undefined) category.description = description;
-      if (icon) category.icon = icon;
-
-      // No parent-child logic
+      if (image !== undefined) category.image = image;
 
       await category.save();
-      // No parent-child logic
 
       return res.json({
+        success: true,
         message: 'Category updated successfully',
-        category
+        data: { category }
       });
     } catch (error: any) {
-      return res.status(500).json({ message: 'Server error', error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: 'Server error', 
+        error: error.message 
+      });
     }
   },
 
@@ -162,21 +175,32 @@ const categoryController = {
       const category = await Category.findById(categoryId);
 
       if (!category) {
-        return res.status(404).json({ message: 'Category not found' });
+        return res.status(404).json({ 
+          success: false,
+          message: 'Category not found' 
+        });
       }
 
       // Check if user has permission to delete
       if (req.user?.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied' });
+        return res.status(403).json({ 
+          success: false,
+          message: 'Access denied' 
+        });
       }
-
-      // No parent-child logic
 
       await Category.findByIdAndDelete(categoryId);
 
-      return res.json({ message: 'Category deleted successfully' });
+      return res.json({ 
+        success: true,
+        message: 'Category deleted successfully' 
+      });
     } catch (error: any) {
-      return res.status(500).json({ message: 'Server error', error: error.message });
+      return res.status(500).json({ 
+        success: false,
+        message: 'Server error', 
+        error: error.message 
+      });
     }
   }
 };

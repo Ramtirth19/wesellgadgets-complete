@@ -53,7 +53,7 @@ const OrderConfirmationPage: React.FC = () => {
                   <div>
                     <span className="text-sm text-gray-500">Order Number</span>
                     <p className="font-mono font-medium text-gray-900">
-                      {orderNumber || 'TV1234567890'}
+                      {orderNumber || 'MJ1234567890'}
                     </p>
                   </div>
                   <div>

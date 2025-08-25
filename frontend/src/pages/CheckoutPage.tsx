@@ -92,7 +92,7 @@ const CheckoutPage: React.FC = () => {
         navigate('/order-confirmation', { 
           state: { 
             orderTotal: finalTotal,
-            orderNumber: response.data?.order?.id || `TV${Date.now()}`,
+            orderNumber: response.data?.order?.orderNumber || response.data?.order?.id || `MJ${Date.now()}`,
             email: formData.email
           }
         });
@@ -106,7 +106,7 @@ const CheckoutPage: React.FC = () => {
       navigate('/order-confirmation', { 
         state: { 
           orderTotal: finalTotal,
-          orderNumber: `TV${Date.now()}`,
+          orderNumber: `MJ${Date.now()}`,
           email: formData.email
         }
       });

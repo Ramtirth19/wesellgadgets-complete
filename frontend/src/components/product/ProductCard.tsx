@@ -19,6 +19,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
+    // Show success feedback
+    const event = new CustomEvent('cart-updated', { 
+      detail: { message: `${product.name} added to cart!` } 
+    });
+    window.dispatchEvent(event);
   };
 
   const discountPercentage = product.originalPrice 
@@ -138,7 +143,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             size="sm"
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
-            Add to Cart
+            {product.inStock ? 'Add to Cart' : 'Out of Stock'}
           </Button>
         </div>
       </Card>

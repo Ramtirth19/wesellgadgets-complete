@@ -241,11 +241,11 @@ const Header: React.FC = () => {
                   </Link>
                   {user?.role === 'admin' && (
                     <Link
-                      to="/admin"
+                      to="/support"
                       className="block px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors font-medium"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Admin Panel
+                      Support
                     </Link>
                   )}
                   <button
