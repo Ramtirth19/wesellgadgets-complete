@@ -146,7 +146,6 @@ const dashboardController = {
             stockCount: product.stockCount,
             price: product.price,
             image: product.images?.[0] || 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400'
-            image: product.images?.[0] || 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=400'
           })),
           topSellingProducts,
           orderStatusDistribution: statusDistribution
